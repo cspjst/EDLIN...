@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_C_COMPILER_WORKS 1)
 
 project(
-    edlin
+    EDLIN
     VERSION 0.1.0
     LANGUAGES C
 )
@@ -48,7 +48,7 @@ file(GLOB SOURCES
 
 # message(Source list="${SOURCES}")
 
-add_executable(DOPE ${SOURCES})
+add_executable(EDLIN ${SOURCES})
 
 # Optional: Install target
 # rename me...

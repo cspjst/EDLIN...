@@ -1,6 +1,7 @@
 #include "edlin_edit.h"
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 edlin_file_t* edlin_new_file(const edlin_line_t* path, edlin_size_t capacity) {
     edlin_file_t* file = malloc(sizeof(edlin_file_t));
@@ -25,8 +26,16 @@ void edlin_free_file(edlin_file_t* file) {
     }
 }
 
-bool edlin_init_file(int argc, char* argv[], edlin_file_t* file) {
-    return true;
+edlin_file_t* edlin_init_file(int argc, char* argv[]) {
+    edlin_file_t* file = edlin_new_file("", 99);
+    return file;
+}
+
+void edlin_print_file(edlin_file_t* file) {
+    for(edlin_size_t i = 0; i < file->size; ++i) {
+        printf("%s\n", file->lines[i]);
+    }
+    printf("path \"%s\"\nsize %u\ncapacity %u\n", file->path, file->size, file->capacity);
 }
 
 // main edit loop
