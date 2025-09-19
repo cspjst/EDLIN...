@@ -3,17 +3,33 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+static const char EDLIN_INTRO[] = " \
+\nEDLIN 0.01, copyright (c) 2025 Jeremy Thornton\n\
+This program comes with ABSOLUTELY NO WARRANTY.\n\
+It is free software, and you are welcome to redistribute it under the terms\n\
+of the MIT License.\n\n\
+";
+
+static const char EDLIN_USAGE[] = " usage: EDLIN file_name [-c <max lines>]";
+
+void edlin_intro() {
+    printf("%s", EDLIN_INTRO);
+}
+
+void edlin_usage() {
+    printf("%s", EDLIN_USAGE);
+}
+
 bool edlin_config(int argc, char* argv[], edlin_config_t* config) {
     config->filename = NULL;
     config->capacity = EDLIN_DEFAULT_CAPACITY;
     if(argc == 1) {
-        return true;
+        return false;
     }
     for(int i = 1; i < argc; ++i) {
-        printf("%s\n", argv[i]);
         if (argv[i][0] != '-') {
             if (config->filename != NULL) {
-                edlin_panic(EDLIN_ERR_MULTIPLE_FILENAMES,"");
+                edlin_panic(EDLIN_ERR_MULTIPLE_FILENAMES,argv[i]);
                 return false;
             }
             config->filename = argv[i];
@@ -32,12 +48,9 @@ bool edlin_config(int argc, char* argv[], edlin_config_t* config) {
             return false;
         }
     }
+    if(!config->filename) {
+        edlin_panic(EDLIN_ERR_MISSING_ARG, "Must provide a file path!");
+        return false;
+    }
     return true;
-}
-
-void edlin_print_config(edlin_config_t* config) {
-    printf("%s %i\n",
-        (config->filename) ?config->filename :"",
-        config->capacity
-    );
 }

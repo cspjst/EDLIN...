@@ -9,6 +9,8 @@ void edlin_free_file(edlin_file_t* file);
 
 edlin_file_t* edlin_init_file(int argc, char* argv[]);
 
+void edlin_read_file(edlin_file_t* file);
+
 void edlin_print_file(edlin_file_t* file);
 
 char edlin_edit(edlin_file_t* file);
