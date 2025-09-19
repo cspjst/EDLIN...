@@ -19,7 +19,7 @@ bool edlin_config((int argc, char* argv[], edlin_config_t* config) {
          switch (argv[i][1]) {
             case 'c':
                 if (i + 1 >= argc) {
-                    edlin_panic(EDLINE_ERR_MISSING_ARG);
+                    edlin_panic(EDLIN_ERR_MISSING_ARG);
                     return false;
                 }
                 config->capacity = (edlin_size_t)atoi(argv[++i]);
