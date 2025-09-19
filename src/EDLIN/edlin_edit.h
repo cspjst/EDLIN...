@@ -12,6 +12,6 @@ edlin_file_t* edlin_init_file(int argc, char* argv[]);
 
 void edlin_print_file(edlin_file_t* file);
 
-bool edlin_edit(edlin_file_t* file); // main edit loop
+char edlin_edit(edlin_file_t* file); 
 
 #endif
