@@ -38,8 +38,7 @@ void edlin_print_file(edlin_file_t* file) {
     printf("path \"%s\"\nsize %u\ncapacity %u\n", file->path, file->size, file->capacity);
 }
 
-// main edit loop
-bool edlin_edit(edlin_file_t* file) {
-  // loop until 'q' or 'e'
-  return true;
+char edlin_edit(edlin_file_t* file) {
+  // do commands and return command type
+  return 'q';
 }
