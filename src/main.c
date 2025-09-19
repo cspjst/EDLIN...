@@ -3,13 +3,16 @@
 #include <stdlib.h>
 
 int main(int argc, char* argv[]) {
-    edlin_file_t* file = edlin_init_file(argc, argv);
-    if(!file) {
-        return EXIT_FAILURE;
+    if(edlin_config_parse(argc, argv)) {
+        edlin_file_t* file = edlin_new_file();
+        if(!file) {
+            edlin_panic(EDLIN_ERR_ALLOC);
+            return EXIT_FAILURE;
+        }
+        edlin_print_file(file);
+        if(edlin_edit(file)) {
+            return  EXIT_SUCCESS;
+        }
     }
-    edlin_print_file(file);
-    if(!edlin_edit(file)) {
-        return EXIT_FAILURE;
-    }
-    return EXIT_SUCCESS;
+    return EXIT_FAILURE;
 }
