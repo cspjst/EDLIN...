@@ -22,6 +22,4 @@ typedef struct {
     edlin_size_t capacity;
 } edlin_file_t;
 
-
-
 #endif
