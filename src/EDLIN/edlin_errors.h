@@ -1,5 +1,5 @@
-#ifndef EDLIN_ERROR_H
-#define EDLIN_ERROR_H
+#ifndef EDLIN_ERRORS_H
+#define EDLIN_ERRORS_H
 
 typedef enum {
     EDLIN_SUCCESS = 0,
