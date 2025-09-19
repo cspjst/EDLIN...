@@ -10,9 +10,7 @@ int main(int argc, char* argv[]) {
             return EXIT_FAILURE;
         }
         edlin_print_file(file);
-        if(edlin_edit(file)) {
-            return  EXIT_SUCCESS;
-        }
+        while(edlin_edit(file));
     }
-    return EXIT_FAILURE;
+    return EXIT_SUCCESS;
 }
