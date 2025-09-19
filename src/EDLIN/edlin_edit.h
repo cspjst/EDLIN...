@@ -2,7 +2,6 @@
 #define EDLIN_EDIT_H
 
 #include "edlin_types.h"
-#include <stdbool.h>
 
 edlin_file_t* edlin_new_file(const edlin_line_t* path, edlin_size_t capacity);
 
@@ -12,6 +11,6 @@ edlin_file_t* edlin_init_file(int argc, char* argv[]);
 
 void edlin_print_file(edlin_file_t* file);
 
-char edlin_edit(edlin_file_t* file); 
+char edlin_edit(edlin_file_t* file);
 
 #endif

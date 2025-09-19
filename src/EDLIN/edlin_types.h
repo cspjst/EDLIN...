@@ -3,16 +3,15 @@
 
 #include "edlin_constants.h"
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef uint16_t edlin_size_t;
 
 typedef char edlin_line_t[EDLIN_LINE_SIZE];
 
 typedef struct {
-    const char *filename;
+    const char* filename;
     edlin_size_t capacity;
-    bool help;
-    bool verbose;
 } edlin_config_t;
 
 typedef struct {

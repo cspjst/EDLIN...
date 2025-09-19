@@ -5,4 +5,6 @@
 
 bool edlin_config(int argc, char* argv[], edlin_config_t* config);
 
+void edlin_print_config(edlin_config_t* config);
+
 #endif
