@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
         edlin_panic(EDLIN_ERR_ALLOC,"");
         return EXIT_FAILURE;
     }
-    edlin_read_file(file);
+    //edlin_read_file(file);
     edlin_print_file(file);
     return EXIT_SUCCESS;
 }
