@@ -9,7 +9,7 @@ typedef enum {
     TOK_DELETE,     // [range]D Delete lines
     TOK_END,        // E End (save file)
     TOK_INSERT,     // [line]I Insert new lines before the mark
-    TOK_LIST,       // [range]L	List the file, mark top of list
+    TOK_LIST,       // [range]L	List the file (mark at top unless set elsewhere)
     TOK_MOVE,       // [range],tolineM Move lines
     TOK_PAGE,       // [range]P	Page (same as List, but mark end of list)
     TOK_QUIT,       // Q Quit (throw away changes)
