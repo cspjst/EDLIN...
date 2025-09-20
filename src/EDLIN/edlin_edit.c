@@ -1,50 +1,164 @@
 #include "edlin_edit.h"
+#include "edlin_errors.h"
+#include "edlin_types.h"
+#include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-edlin_file_t* edlin_new_file(const edlin_line_t* path, edlin_size_t capacity) {
+edlin_file_t* edlin_new_file(const edlin_line_t path, edlin_size_t capacity) {
     edlin_file_t* file = malloc(sizeof(edlin_file_t));
     if (!file) {
         return NULL;
     }
-    file->lines = calloc(capacity, sizeof(edlin_line_t));
+    file->lines = calloc(capacity, sizeof(edlin_line_t*));  // arrray of null line pointers
     if (!file->lines) {
         free(file);
         return NULL;
     }
+    strcpy(file->path, path);
     file->capacity = capacity;
     file->size = 0;
-    if(!path) {
-        file->path[0] = '\0';
-        return file;
-    }
-    strcpy((char*)&file->path, (const char*)path);
-    //edlin_read_file(file->path);
     return file;
 }
 
 void edlin_free_file(edlin_file_t* file) {
-    if(file) {
-        free(file->lines);
-        free(file);
+    if(!file) {
+        return;
     }
+    if (file->lines) {
+        for (edlin_size_t i = 0; i < file->size; i++) {
+            free(file->lines[i]);
+        }
+        free(file->lines);
+    }
+    free(file);
 }
 
-edlin_file_t* edlin_init_file(int argc, char* argv[]) {
-    edlin_file_t* file = edlin_new_file("", 99);
-    return file;
+bool edlin_yesno() {
+    printf("Continue (Y/N)?");
+    fflush(stdout);
+    return toupper(getchar()) == 'Y';
+}
+
+edlin_line_t* edlin_new_line() {
+     edlin_line_t* line = calloc(1, EDLIN_LINE_SIZE);
+     if(!line) {
+         edlin_panic(EDLIN_ERR_ALLOC, "new line failed!");
+     }
+     return line;
+}
+
+// Read a line from input stream into buffer
+bool edlin_read_line(edlin_line_t* line, FILE* istream) {
+    if (!fgets((char*)line, EDLIN_LINE_SIZE, istream)) {
+        if (feof(istream)) {
+            return false;  // Graceful EOF indication
+        } else {
+            edlin_panic(EDLIN_ERR_STREAM, "read line failed!");
+            return false;
+        }
+    }
+    return true;
+}
+
+// Remove trailing newline and whitespace
+void edlin_trim_line(edlin_line_t* line) {
+    if (!line) {
+        edlin_panic(EDLIN_ERR_NULL, "trim line failed!");
+        return;
+    }
+    (*line)[strcspn((const char*)line, "\n")] = '\0';
+}
+
+bool edlin_is_full(edlin_file_t* file, edlin_size_t count) {
+    bool is_full = (file->size + count > file->capacity);
+    if(is_full) {
+        edlin_panic(EDLIN_ERR_BUFFER_FULL, "\n");
+    }
+    return is_full;
+}
+
+bool edlin_load_file(edlin_file_t* file) {
+    if (!file) {
+        edlin_panic(EDLIN_ERR_NULL, "Null pointer in load file");
+        return false;
+    }
+    FILE* f = fopen((const char*)file->path, "r");
+    if (!f) {
+        file->size = 0;
+        return true;    // create file when save
+    }
+    file->size = 0;
+    edlin_line_t* line;
+    bool reading = true;
+
+    while (reading) {
+        if (edlin_is_full(file, 1)) {
+            fclose(f);
+            return false;
+        }
+        line = edlin_new_line();
+        if (!line) {
+            fclose(f);
+            return false;
+        }
+        if (!edlin_read_line(line, f)) {
+            free(line);
+            reading = false;
+
+            continue;
+        }
+        edlin_trim_line(line);
+        file->lines[file->size++] = line;
+    }
+
+    fclose(f);
+    return true;
+}
+
+bool edlin_insert_lines(edlin_file_t* file) {
+    if (edlin_is_full(file, 1)) {
+        return false;
+    }
+
+    printf(": ");
+    fflush(stdout); // ensure prompt on screen
+    bool done = false;
+    edlin_size_t start = file->size;
+
+    while (!done) {     // input line by line until '.'
+        edlin_line_t* line = edlin_new_line();
+        if (!line) {
+            return false;
+        }
+        if (!edlin_read_line(line, stdin)) {
+            free(line);
+            return false;
+        }
+        edlin_trim_line(line);
+        if (strcmp((const char*)line, ".") == 0) {
+            free(line);
+            break;
+        }
+        file->lines[file->size++] = line;
+    }
+
+    // shuffle time!
+
+    return true;
 }
 
 void edlin_print_file(edlin_file_t* file) {
     for(edlin_size_t i = 0; i < file->size; ++i) {
-        printf("%s\n", file->lines[i]);
+        printf("%s\n", *file->lines[i]);
+        if ((i + 1) % (23) == 0 && i + 1 < file->size) {
+            if (!edlin_yesno()) {
+                printf("\n");
+                return;
+            }
+        }
     }
-    printf("path \"%s\" size %u capacity %u\n",
-        (*file->path) ?file->path :"",
-        file->size,
-        file->capacity
-    );
 }
 
 char edlin_edit(edlin_file_t* file) {

@@ -16,7 +16,8 @@ typedef struct {
 
 typedef struct {
     edlin_line_t path;
-    edlin_line_t* lines;
+    edlin_line_t** lines;   // array of pointers to line buffers
+    edlin_size_t pos;       // insert position line number
     edlin_size_t size;
     edlin_size_t capacity;
 } edlin_file_t;

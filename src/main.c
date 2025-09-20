@@ -3,6 +3,7 @@
 #include "EDLIN/edlin_edit.h"
 #include "EDLIN/edlin_errors.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 int main(int argc, char* argv[]) {
     edlin_config_t config;
@@ -12,14 +13,15 @@ int main(int argc, char* argv[]) {
     }
     edlin_intro();
     edlin_file_t* file = edlin_new_file(
-        (const edlin_line_t*)config.filename,
+        config.filename,
         config.capacity
     );
     if(!file) {
         edlin_panic(EDLIN_ERR_ALLOC,"");
         return EXIT_FAILURE;
     }
-    //edlin_read_file(file);
+    edlin_load_file(file);
+    printf("%s: %i lines read\n", file->path, file->size);
     edlin_print_file(file);
     return EXIT_SUCCESS;
 }

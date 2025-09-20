@@ -6,11 +6,13 @@
 static const char EDLIN_INTRO[] = " \
 \nEDLIN 0.01, copyright (c) 2025 Jeremy Thornton\n\
 This program comes with ABSOLUTELY NO WARRANTY.\n\
-It is free software, and you are welcome to redistribute it under the terms\n\
-of the MIT License.\n\n\
+It is free software, and you are welcome to redistribute it\n\
+under the terms of the MIT License.\n\n\
 ";
 
 static const char EDLIN_USAGE[] = " usage: EDLIN file_name [-c <max lines>]";
+
+static const char EDLIN_MSG_FILENAME[] = "File name must be specified";
 
 void edlin_intro() {
     printf("%s", EDLIN_INTRO);
@@ -24,6 +26,7 @@ bool edlin_config(int argc, char* argv[], edlin_config_t* config) {
     config->filename = NULL;
     config->capacity = EDLIN_DEFAULT_CAPACITY;
     if(argc == 1) {
+        edlin_panic(EDLIN_ERR_MISSING_ARG, EDLIN_MSG_FILENAME);
         return false;
     }
     for(int i = 1; i < argc; ++i) {
@@ -49,7 +52,7 @@ bool edlin_config(int argc, char* argv[], edlin_config_t* config) {
         }
     }
     if(!config->filename) {
-        edlin_panic(EDLIN_ERR_MISSING_ARG, "Must provide a file path!");
+        edlin_panic(EDLIN_ERR_MISSING_ARG, EDLIN_MSG_FILENAME);
         return false;
     }
     return true;
