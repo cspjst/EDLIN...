@@ -1,10 +1,10 @@
-#include "edlin_edit.h"
+#include "edlin_file.h"
 #include "edlin_errors.h"
 #include "edlin_types.h"
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
+
 
 edlin_file_t* edlin_new_file(const edlin_line_t path, edlin_size_t capacity) {
     edlin_file_t* file = malloc(sizeof(edlin_file_t));
@@ -62,7 +62,6 @@ bool edlin_read_line(edlin_line_t* line, FILE* istream) {
     return true;
 }
 
-// Remove trailing newline and whitespace
 void edlin_trim_line(edlin_line_t* line) {
     if (!line) {
         edlin_panic(EDLIN_ERR_NULL, "trim line failed!");
@@ -71,7 +70,7 @@ void edlin_trim_line(edlin_line_t* line) {
     (*line)[strcspn((const char*)line, "\n")] = '\0';
 }
 
-bool edlin_is_full(edlin_file_t* file, edlin_size_t count) {
+bool edlin_is_file_full(edlin_file_t* file, edlin_size_t count) {
     bool is_full = (file->size + count > file->capacity);
     if(is_full) {
         edlin_panic(EDLIN_ERR_BUFFER_FULL, "\n");
@@ -94,7 +93,7 @@ bool edlin_load_file(edlin_file_t* file) {
     bool reading = true;
 
     while (reading) {
-        if (edlin_is_full(file, 1)) {
+        if (edlin_is_file_full(file, 1)) {
             fclose(f);
             return false;
         }
@@ -117,51 +116,16 @@ bool edlin_load_file(edlin_file_t* file) {
     return true;
 }
 
-bool edlin_insert_lines(edlin_file_t* file) {
-    if (edlin_is_full(file, 1)) {
-        return false;
-    }
-
-    printf(": ");
-    fflush(stdout); // ensure prompt on screen
-    bool done = false;
-    edlin_size_t start = file->size;
-
-    while (!done) {     // input line by line until '.'
-        edlin_line_t* line = edlin_new_line();
-        if (!line) {
-            return false;
-        }
-        if (!edlin_read_line(line, stdin)) {
-            free(line);
-            return false;
-        }
-        edlin_trim_line(line);
-        if (strcmp((const char*)line, ".") == 0) {
-            free(line);
-            break;
-        }
-        file->lines[file->size++] = line;
-    }
-
-    // shuffle time!
-
-    return true;
-}
-
 void edlin_print_file(edlin_file_t* file) {
     for(edlin_size_t i = 0; i < file->size; ++i) {
         printf("%s\n", *file->lines[i]);
-        if ((i + 1) % (23) == 0 && i + 1 < file->size) {
-            if (!edlin_yesno()) {
-                printf("\n");
-                return;
-            }
+        if (
+            (i + 1) % EDLIN_PAGE_SIZE == 0
+            && i + 1 < file->size
+            && !edlin_yesno()
+        ) {
+            printf("\n");
+            return;
         }
     }
-}
-
-char edlin_edit(edlin_file_t* file) {
-  // do commands and return command type
-  return 'q';
 }

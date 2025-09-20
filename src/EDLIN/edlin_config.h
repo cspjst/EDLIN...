@@ -3,6 +3,11 @@
 
 #include "edlin_types.h"
 
+typedef struct {
+    const char* filename;
+    edlin_size_t capacity;
+} edlin_config_t;
+
 void edlin_intro();
 
 void edlin_usage();

@@ -1,8 +1,13 @@
 #ifndef EDLIN_PARSE_H
 #define EDLIN_PARSE_H
 
+#include "edlin_constants.h"
+#include "edlin_types.h"
+#include "edlin_file.h"
+
 typedef enum {
-    TOK_HELP = 0,   // ? Show help
+    TOK_UNKNOWN =0,
+    TOK_HELP,       // ? Show help
     TOK_EDIT,       // line# Edit a single line
     TOK_APPEND,     // [#lines]A Append a line below the mark
     TOK_COPY,       // [range],toline[,times]C	Copy lines
@@ -15,10 +20,18 @@ typedef enum {
     TOK_QUIT,       // Q Quit (throw away changes)
     TOK_REPLACE,    // [range][?]Rold,new Replace text
     TOK_SEARCH,     // [range][?]S[string] Search for text
-    TOK_TRANSFER,   // [toline]Tfilename Transfer (insert the contents of a new file at the mark)
-    TOK_WRITE,      // [#lines]W Write the file to disk
-
-
+    TOK_TRANSFER,   // [toline]Tfilepath Transfer (insert the contents of a new file at the mark)
+    TOK_WRITE       // [#lines]W Write the file to disk
 } edlin_token_t;
+
+typedef struct {
+    edlin_line_t line;
+    edlin_token_t op;
+    char* fields[EDLIN_FIELDS_MAX];
+} edlin_cmd_t;
+
+edlin_token_t edlin_cmd_token(char op);
+
+bool edlin_tokenize(edlin_cmd_t* cmd);
 
 #endif
