@@ -5,6 +5,8 @@
 #include "edlin_types.h"
 #include "edlin_file.h"
 
+#define EDLIN_FIELDS_MAX 5
+
 typedef enum {
     TOK_UNKNOWN =0,
     TOK_HELP,       // ? Show help
@@ -22,7 +24,8 @@ typedef enum {
     TOK_SEARCH,     // [range][?]S[string] Search for text
     TOK_TRANSFER,   // [toline]Tfilepath Transfer (insert the contents of a new file at the mark)
     TOK_WRITE,      // [#lines]W Write the file to disk
-    TOK_RETURN      // user hit return on whitespace line
+    TOK_RETURN,     // user hit return on whitespace line
+    TOK_ERROR       // recognised command but syntax error
 } edlin_token_t;
 
 typedef struct {
@@ -31,8 +34,6 @@ typedef struct {
     char* fields[EDLIN_FIELDS_MAX];
 } edlin_cmd_t;
 
-//edlin_token_t edlin_cmd_token(char op);
-
-//void edlin_tokenize(edlin_cmd_t* , char* p);
+void edlin_tokenize(edlin_cmd_t* cmd);
 
 #endif

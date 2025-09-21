@@ -1,6 +1,5 @@
 #include "edlin_parse.h"
 #include "edlin_file.h"
-#include "edlin_types.h"
 #include <ctype.h>
 #include <string.h>
 
@@ -15,6 +14,7 @@ typedef struct {
 } edlin_info_t;
 
 static const edlin_info_t EDLIN_INFO[] = {
+    {' ', TOK_EDIT,     "Edit line                  line#"},
     {'?', TOK_HELP,     "Show help                  ?"},
     {'E', TOK_END,      "End (save file)            E"},
     {'Q', TOK_QUIT,     "Quit (throw away changes)  Q"},
@@ -26,58 +26,73 @@ static const edlin_info_t EDLIN_INFO[] = {
     {'M', TOK_MOVE,     "Move                       [range],tolineM"},
     {'P', TOK_PAGE,     "Page                       [range]P"},
     {'W', TOK_WRITE,    "Write                      [#lines]W"},
-    {' ', TOK_EDIT,     "Edit line                  line#"},
     {'R', TOK_REPLACE,  "Replace                    [range][?]R[old],[new]"},
     {'S', TOK_SEARCH,   "Search                     [range][?]S[text]"},
     {'T', TOK_TRANSFER, "Transfer                   [toline]Tfilepath"},
     {'\0', TOK_UNKNOWN, ""}
 };
 
-edlin_token_t edlin_tokenize_cmd(char cmd, edlin_size_t start, edlin_size_t end) {
-    cmd = toupper(cmd);
-    for(edlin_size_t i = start; i < end; ++i) {
-        if(EDLIN_INFO[i].op_char == cmd) {
-            return EDLIN_INFO[i].token;
-        }
-    }
-    return TOK_UNKNOWN;
-}
-
-void edlin_tokenize_args(edlin_cmd_t* cmd, const char* p) {
-    // populate the pointers to the arguments
-
-}
-
 void edlin_tokenize(edlin_cmd_t* cmd) {
     edlin_trim_line(&cmd->line);
-    const char* start = cmd->line;
-    if(*start == '\0') {
+    char* start = cmd->line;
+    char* p = start;
+    // 1. check if just hit enter
+    if(*p == '\0') {
         cmd->op = TOK_RETURN;
         return;
     }
-    // single character commands with no arguments
-    const char* p = strchr(p, '?');
-    if(*(p + 1) == '\0') {
-        cmd->op = TOK_HELP; // the trimmed string was "?\0"
-        return;
+    // 2. single character commands with no arguments
+    for(int i = 1; i < OFFSET_A; ++i) { // search window
+        if(toupper(*p) == EDLIN_INFO[i].op_char) {
+            *******************
+            if(*(p + 1) != '\0') {
+                cmd->op = TOK_ERROR;
+            }
+            // "?\0", "E\0", or "Q\0"
+            cmd->op = EDLIN_INFO[i].token;
+            return;
+        }
     }
-
-}
-
-/*
-// figure if Help or optional leading for Replace, Search or Transfer
-
-    char ch = toupper(*(p + 1));
-    // check for (R)eplace or (S)earch or (T)ransfer
-    if(ch == 'R' || ch == 'S' || ch == 'T') {
-        cmd->op = edlin_tokenize_cmd(ch, OFFSET_RST, EDLIN_CMD_COUNT);
-        edlin_tokenize_args(cmd, p + 1);
-        return;
+    // 3. single character commands with only leading arguments
+    for(int i = OFFSET_A; i < OFFSET_RST; ++i) {
+        // A, C, D, I, L, M, P, or W
+        if(toupper(*p) == EDLIN_INFO[i].op_char) {
+            if(*(p + 1) != '\0') {
+                cmd->op = TOK_ERROR;
+            }
+            cmd->op = EDLIN_INFO[i].token;
+            *p = '\0';  // shorten the string to its args
+            int j = 0;
+            p = strtok(start, ",");
+            while (p != NULL && j < EDLIN_FIELDS_MAX) {
+                cmd->fields[j++] = p;  // Store pointer to arg
+                p = strtok(NULL, ",");    // Get next token
+            }
+            return;
+        }
+    }
+    // 4. single character commands with leading and trailing arguments
+    for(int i = OFFSET_RST; i < EDLIN_CMD_COUNT; ++i) {
+        // R, S, or T
+        if(toupper(*p) == EDLIN_INFO[i].op_char) {
+            cmd->op = EDLIN_INFO[i].token;
+            *p = '\0';  // split string leading, trailing args
+            char* split = p;
+            // leading tokens
+            int j = 0;
+            p = strtok(start, ",");
+            while (p != NULL && j < EDLIN_FIELDS_MAX) {
+                cmd->fields[j++] = p;  // Store pointer to arg
+                p = strtok(NULL, ",");    // Get next token
+            }
+            // trailing tokens
+            p = strtok(split, ",");
+            while (p != NULL && j < EDLIN_FIELDS_MAX) {
+                cmd->fields[j++] = p;  // Store pointer to arg
+                p = strtok(NULL, ",");    // Get next token
+            }
+            return;
+        }
     }
     cmd->op = TOK_UNKNOWN;
-    return;
 }
-for(edlin_size_t i = OFFSET_A; i < OFFSET_RST; ++i) {
-    p = strchr(p, '?');
-}
-*/

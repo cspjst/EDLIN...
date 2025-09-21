@@ -23,9 +23,19 @@ int main(int argc, char* argv[]) {
     }
     edlin_load_file(file);
     printf("%s: %i lines read\n", file->path, file->size);
-    edlin_read_line(&cmd.line, stdin);
-    edlin_trim_line(&cmd.line);
-    printf(">%s<", cmd.line);
-    printf("token %i", edlin_cmd_token('c'));
+
+
+    while(cmd.op != TOK_QUIT) {
+        edlin_read_line(&cmd.line, stdin);
+        edlin_trim_line(&cmd.line);
+        printf(">%s<\n", cmd.line);
+        edlin_tokenize(&cmd);
+        printf("cmd %i\n", cmd.op);
+        printf("%s\n", cmd.line);
+        for (int i = 0; i < EDLIN_FIELDS_MAX; i++) {
+            printf("tokens[%d] = \"%s\"\n", i, cmd.fields[i]);
+        }
+    }
+
     return EXIT_SUCCESS;
 }
