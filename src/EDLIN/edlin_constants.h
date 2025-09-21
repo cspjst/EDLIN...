@@ -5,6 +5,5 @@
 #define EDLIN_DEFAULT_CAPACITY 99
 #define EDLIN_FIELDS_MAX 5
 #define EDLIN_PAGE_SIZE 23
-#define EDLIN_CMD_COUNT 16
 
 #endif

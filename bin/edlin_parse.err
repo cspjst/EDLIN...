@@ -1,0 +1,2 @@
+/Users/jeremythornton/dosbox/cspjst/EDLIN/src/EDLIN/edlin_parse.c(49): Error! E1051: Not expecting a return value for function 'edlin_tokenize'
+/Users/jeremythornton/dosbox/cspjst/EDLIN/src/EDLIN/edlin_parse.c(49): Error! E1147: Too many errors: compilation aborted

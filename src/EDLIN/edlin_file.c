@@ -63,11 +63,23 @@ bool edlin_read_line(edlin_line_t* line, FILE* istream) {
 }
 
 void edlin_trim_line(edlin_line_t* line) {
-    if (!line) {
-        edlin_panic(EDLIN_ERR_NULL, "trim line failed!");
-        return;
+    if (line == NULL) return;
+    char* p = *line;
+    // Trim leading whitespace
+    while (*p && isspace((unsigned char)*p)) {
+        p++;
     }
-    (*line)[strcspn((const char*)line, "\n")] = '\0';
+    // Trim newline and anything after it
+    size_t len = strcspn(p, "\n");
+    p[len] = '\0';
+    // Trim trailing whitespace
+    while (len > 0 && isspace((unsigned char)p[len - 1])) {
+        p[--len] = '\0';
+    }
+    // Move content if leading whitespace was trimmed
+    if (p != *line) {
+        memmove(*line, p, len + 1);
+    }
 }
 
 bool edlin_is_file_full(edlin_file_t* file, edlin_size_t count) {

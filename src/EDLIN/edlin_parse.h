@@ -21,7 +21,8 @@ typedef enum {
     TOK_REPLACE,    // [range][?]Rold,new Replace text
     TOK_SEARCH,     // [range][?]S[string] Search for text
     TOK_TRANSFER,   // [toline]Tfilepath Transfer (insert the contents of a new file at the mark)
-    TOK_WRITE       // [#lines]W Write the file to disk
+    TOK_WRITE,      // [#lines]W Write the file to disk
+    TOK_RETURN      // user hit return on whitespace line
 } edlin_token_t;
 
 typedef struct {
@@ -30,8 +31,8 @@ typedef struct {
     char* fields[EDLIN_FIELDS_MAX];
 } edlin_cmd_t;
 
-edlin_token_t edlin_cmd_token(char op);
+//edlin_token_t edlin_cmd_token(char op);
 
-bool edlin_tokenize(edlin_cmd_t* cmd);
+//void edlin_tokenize(edlin_cmd_t* , char* p);
 
 #endif
