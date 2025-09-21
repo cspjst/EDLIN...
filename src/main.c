@@ -30,10 +30,10 @@ int main(int argc, char* argv[]) {
         edlin_trim_line(&cmd.line);
         printf(">%s<\n", cmd.line);
         edlin_tokenize(&cmd);
-        printf("cmd %i\n", cmd.op);
-        printf("%s\n", cmd.line);
-        for (int i = 0; i < EDLIN_FIELDS_MAX; i++) {
-            printf("tokens[%d] = \"%s\"\n", i, cmd.fields[i]);
+        printf("token %i, %s\n", cmd.op, edlin_help(cmd.op));
+        printf("argc %i\n", cmd.argc);
+        for (int i = 0; i < EDLIN_ARGC_MAX; i++) {
+            printf("tokens[%d] = \"%s\"\n", i, cmd.argv[i]);
         }
     }
 

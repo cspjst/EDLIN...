@@ -3,8 +3,8 @@
 #include <ctype.h>
 #include <string.h>
 
+#define OFFSET_A 4
 #define OFFSET_RST 12
-#define OFFSET_A 2
 #define EDLIN_CMD_COUNT 16
 
 typedef struct {
@@ -19,7 +19,7 @@ static const edlin_info_t EDLIN_INFO[] = {
     {'E', TOK_END,      "End (save file)            E"},
     {'Q', TOK_QUIT,     "Quit (throw away changes)  Q"},
     {'A', TOK_APPEND,   "Append                     [#lines]A"},
-    {'C', TOK_COPY,     "Copy                       [range],toline[,times]C"},
+    {'C', TOK_COPY,     "Copy                       [range][,times]C"},
     {'D', TOK_DELETE,   "Delete                     [range]D Delete lines"},
     {'I', TOK_INSERT,   "Insert                     [line]I"},
     {'L', TOK_LIST,     "List                       [range]L"},
@@ -29,70 +29,136 @@ static const edlin_info_t EDLIN_INFO[] = {
     {'R', TOK_REPLACE,  "Replace                    [range][?]R[old],[new]"},
     {'S', TOK_SEARCH,   "Search                     [range][?]S[text]"},
     {'T', TOK_TRANSFER, "Transfer                   [toline]Tfilepath"},
-    {'\0', TOK_UNKNOWN, ""}
+    {' ', TOK_ERROR,    "Command syntax error!"},
+    {' ', TOK_EMPTY,    "Empty input!"},
+    {' ', TOK_UNKNOWN, "Unknown command!"}
 };
 
-void edlin_tokenize(edlin_cmd_t* cmd) {
-    edlin_trim_line(&cmd->line);
-    char* start = cmd->line;
-    char* p = start;
-    // 1. check if just hit enter
+char* edlin_help(edlin_size_t i) {
+    return EDLIN_INFO[i].help;
+}
+
+bool is_tokenize_empty(edlin_cmd_t* cmd, char* p) {
     if(*p == '\0') {
-        cmd->op = TOK_RETURN;
-        return;
+        cmd->op = TOK_EMPTY;
+        return true;
     }
-    // 2. single character commands with no arguments
-    for(int i = 1; i < OFFSET_A; ++i) { // search window
+    return false;
+}
+
+bool is_tokenize_EQ(edlin_cmd_t* cmd, char* p) {
+    for(int i = 1; i < OFFSET_A; ++i) { // ?, E, Q search window
         if(toupper(*p) == EDLIN_INFO[i].op_char) {
-            *******************
             if(*(p + 1) != '\0') {
                 cmd->op = TOK_ERROR;
+                return true; // trailing arg syntax error
             }
-            // "?\0", "E\0", or "Q\0"
             cmd->op = EDLIN_INFO[i].token;
-            return;
+            return true;
         }
     }
-    // 3. single character commands with only leading arguments
+    return false;
+}
+
+bool is_tokenize_ACDILMPW(edlin_cmd_t* cmd, char* p, char* start) {
     for(int i = OFFSET_A; i < OFFSET_RST; ++i) {
-        // A, C, D, I, L, M, P, or W
         if(toupper(*p) == EDLIN_INFO[i].op_char) {
             if(*(p + 1) != '\0') {
                 cmd->op = TOK_ERROR;
+                return true; // trailing arg syntax error
             }
             cmd->op = EDLIN_INFO[i].token;
             *p = '\0';  // shorten the string to its args
             int j = 0;
             p = strtok(start, ",");
-            while (p != NULL && j < EDLIN_FIELDS_MAX) {
-                cmd->fields[j++] = p;  // Store pointer to arg
+            while (p != NULL && j < EDLIN_ARGC_MAX - 1) {
+                cmd->argv[j++] = p;  // Store pointer to arg
                 p = strtok(NULL, ",");    // Get next token
             }
-            return;
+            cmd->argc = j;
+            return true;
         }
     }
-    // 4. single character commands with leading and trailing arguments
+    return false;
+}
+
+bool is_tokenize_RST(edlin_cmd_t* cmd, char* p, char* start) {
     for(int i = OFFSET_RST; i < EDLIN_CMD_COUNT; ++i) {
-        // R, S, or T
         if(toupper(*p) == EDLIN_INFO[i].op_char) {
             cmd->op = EDLIN_INFO[i].token;
             *p = '\0';  // split string leading, trailing args
-            char* split = p;
+            char* split = p + 1;
+            // Check for interactive modifier '?' before the command char
+             int j = 0;
+            if(*(p - 1) == '?') {
+                *(p - 1) = '\0'; // Null-terminate before '?'
+                cmd->argv[j++] = "?"; // interactive
+            } else {
+                cmd->argv[j++] = "!"; // non-interactive
+            }
             // leading tokens
-            int j = 0;
             p = strtok(start, ",");
-            while (p != NULL && j < EDLIN_FIELDS_MAX) {
-                cmd->fields[j++] = p;  // Store pointer to arg
+            while (p != NULL && j < EDLIN_ARGC_MAX) {
+                cmd->argv[j++] = p;  // Store pointer to arg
                 p = strtok(NULL, ",");    // Get next token
             }
-            // trailing tokens
+            // trailing token
             p = strtok(split, ",");
-            while (p != NULL && j < EDLIN_FIELDS_MAX) {
-                cmd->fields[j++] = p;  // Store pointer to arg
+            while (p != NULL && j < EDLIN_ARGC_MAX) {
+                cmd->argv[j++] = p;  // Store pointer to arg
                 p = strtok(NULL, ",");    // Get next token
             }
-            return;
+            cmd->argc = j;
+            return true;
         }
     }
-    cmd->op = TOK_UNKNOWN;
+    return false;
+}
+
+void do_tokenize_digits(edlin_cmd_t* cmd, char* p) {
+    while(*p != '\0') {
+        if(!isdigit(*p)) {
+            cmd->op = TOK_ERROR;
+            return; // syntax error
+        }
+        p++;
+    }
+    cmd->op = TOK_EDIT;
+    cmd->argc = 1;
+    cmd->argv[0] = cmd->line;
+}
+
+void edlin_tokenize(edlin_cmd_t* cmd) {
+    edlin_trim_line(&cmd->line);
+    char* start = cmd->line;
+    char* end = start + strlen(cmd->line);
+    char* p = start;
+    cmd->argc = 0;
+    memset(cmd->argv, 0, sizeof(cmd->argv)); // set all pointers to NULL
+    // 1. check if just hit enter
+    if(is_tokenize_empty(cmd, p)) {
+        return;
+    }
+    // 2. single character commands with no arguments
+    if(is_tokenize_EQ(cmd, p)) {
+        return;
+    }
+    // 3. single character commands with arguments
+    while(*p != '\0') {
+        if(!isalpha(*p)) {
+           p++;
+           continue;
+        }
+        // 3.1 leading args
+        if(is_tokenize_ACDILMPW(cmd, p, start)) {
+            return;
+        }
+        // 3.2 leading and trailing args
+        if(is_tokenize_RST(cmd, p, start)) {
+            return;
+        }
+        p++;
+    }
+    // 4. its all numbers or syntax error
+    do_tokenize_digits(cmd, start);
 }
