@@ -71,6 +71,9 @@ bool is_tokenize_ACDILMPW(edlin_cmd_t* cmd, char* p, char* start) {
             *p = '\0';  // shorten the string to its args
             int j = 0;
             // tokenize leading args
+            if(*start == ',') { // check for current line syntax
+                cmd->argv[j++] = start;
+            }
             p = strtok(start, ",");
             while (p != NULL && j < EDLIN_ARGC_MAX - 1) {
                 cmd->argv[j++] = p;  // Store pointer to arg
@@ -98,6 +101,9 @@ bool is_tokenize_RST(edlin_cmd_t* cmd, char* p, char* start) {
                 cmd->argv[j++] = "!"; // non-interactive
             }
             // tokenize leading args
+            if(*start == ',') { // check for current line syntax
+                cmd->argv[j++] = start;
+            }
             p = strtok(start, ",");
             while (p != NULL && j < EDLIN_ARGC_MAX) {
                 cmd->argv[j++] = p;  // Store pointer to arg
