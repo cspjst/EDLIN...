@@ -42,6 +42,6 @@ But it is Append that stands as a stark testament to the brutal hardware constra
 
 In an era of severe memory constraints, this elegant, human-centric design is what made EDLIN not just functional, but powerful and fast—a testament to the craftsmanship of early PC software developers.
 
-## Implemtation notes 
+## Implementation notes 
 
 (TBC)
