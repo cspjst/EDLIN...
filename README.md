@@ -36,9 +36,9 @@ This hybrid approach is where EDLIN's parser reveals its true sophistication. Th
 
 Thus, EDLIN commands form an expandable grammar — a structural paradigm that is consistent and applicable across commands. A grammar that soon becomes second nature, allowing text to be wrangled into the desired shape with a quick flurry of commands.
 
-Finally, hybrid commands like Insert (I) and Append (A) use a mixed pattern, '[line]I', acting as a bridge that accepts a single parameter before transitioning the editor from command mode into a data input stream.
+Finally, hybrid commands like Insert (I) and Append (A) use a mixed pattern, `[line]I`, acting as a bridge that accepts a single parameter before transitioning the editor from command mode into a data input stream.
 
-But it is Append that stands as a stark testament to the brutal hardware constraints of early 1980s personal computers. While 'I' switches the editor into a mode for inputting new text from the user, the 'A' command reveals a time when the entire file couldn't fit into memory. In an era where 64KB was a significant amount of RAM, editing a large file required a different strategy. EDLIN would load only the initial portion of the file. The '[#lines]A' command was not for adding new content you would type, but for appending the next segment of the existing file from disk into memory—transforming A from a simple editing verb into a memory management tool.
+But it is Append that stands as a stark testament to the brutal hardware constraints of early 1980s personal computers. While `I` switches the editor into a mode for inputting new text from the user, the `A` command reveals a time when a large text file *could not fit into memory*. In an era where 64KB was a significant amount of RAM, editing a large file required a different strategy. EDLIN would load only the initial portion of the file. The `[#lines]A` command was not for adding new typed content, but for appending the next segment of the existing file from disk into memory—transforming `A` from a simple editing verb into a memory management tool.
 
 In an era of severe memory constraints, this elegant, human-centric design is what made EDLIN not just functional, but powerful and fast—a testament to the craftsmanship of early PC software developers.
 
