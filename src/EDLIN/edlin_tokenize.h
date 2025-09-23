@@ -3,7 +3,6 @@
 
 #include "edlin_constants.h"
 #include "edlin_types.h"
-#include "edlin_file.h"
 
 #define EDLIN_ARGC_MAX 5
 
