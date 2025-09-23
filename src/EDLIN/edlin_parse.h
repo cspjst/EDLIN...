@@ -1,7 +1,7 @@
 #ifndef EDLIN_PARSE_H
 #define EDLIN_PARSE_H
 
-#include <edlin_types.h> 
+#include "edlin_types.h"
 #include <stdbool.h>
 
 // function signature for dispatch table
