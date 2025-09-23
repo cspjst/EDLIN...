@@ -4,5 +4,6 @@
 #define EDLIN_LINE_SIZE  80
 #define EDLIN_DEFAULT_CAPACITY 99
 #define EDLIN_PAGE_SIZE 23
+#define EDLIN_ARGC_MAX 5
 
 #endif
