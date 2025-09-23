@@ -27,13 +27,6 @@ typedef enum {
     TOK_UNKNOWN
 } edlin_token_t;
 
-typedef struct {
-    edlin_line_t line;
-    edlin_token_t op;
-    edlin_size_t argc;
-    char* argv[EDLIN_ARGC_MAX];
-} edlin_cmd_t;
-
 char* edlin_help(edlin_size_t i);
 
 void edlin_tokenize(edlin_cmd_t* cmd);
