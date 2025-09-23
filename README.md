@@ -44,4 +44,6 @@ In an era of severe memory constraints, this elegant design is what made EDLIN n
 
 ## Implementation notes 
 
-(TBC)
+For this implementation of EDLIN the _command mode_ usage is slightly different, such that, the user does not have to type the control characters mandated by the original Microsoft DOS:
++ To exit from _insert mode_ rather than typing `Ctrl-C` the user enters a single fullstop (aka period) on an empty line and hits `Enter` - this will switch to _command mode_.
++ Using the (R)eplace command, rather than separating the search and replace text strings with `Ctrl-Z` a simple comma between them will suffice e.g. `?Rold,new`
