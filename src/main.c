@@ -1,6 +1,6 @@
 #include "EDLIN/edlin_config.h"
 #include "EDLIN/edlin_file.h"
-#include "EDLIN/edlin_parse.h"
+#include "EDLIN/edlin_tokenize.h"
 #include "EDLIN/edlin_errors.h"
 #include <stdlib.h>
 #include <stdio.h>
