@@ -36,6 +36,10 @@ This hybrid approach is where EDLIN's parser reveals its true sophistication. Th
 
 Thus, EDLIN commands form an expandable grammar — a structural paradigm that is consistent and applicable across commands. A grammar that soon becomes second nature, allowing text to be wrangled into the desired shape with a quick flurry of commands.
 
+Perhaps the most intersting modal change comes when entering a line number alone. This is interpreted by EDLIN as entering the _edit mode_, a mode where the user is given a mini text editor controlled by the function key 1 - 4, the insert, escape and return keys.
+
+Thus, EDLIN is not only mutlitmodal but also it is multiparadigm.
+
 Finally, hybrid commands like Insert (I) and Append (A) use a prefixed pattern, `[line]I`, acting as a bridge that accepts a single parameter before transitioning the editor from command mode into _insert mode_ for inputting text line by line. Exiting this mode back to command mode by pressing `Ctrl-C` or in some versions a fullstop `.` on its own line.
 
 But it is Append that stands as a stark testament to the brutal hardware constraints of early 1980s personal computers. While `I` switches the editor into insert mode for inputting new text from the user, the `A` command reveals a time when a large text file *could not fit into memory*. In an era where 64KB was a significant amount of RAM, editing a large file required a different strategy. EDLIN would load only the initial portion of the file. The `[#lines]A` command was not for adding new typed content, but for appending the next segment of the existing file from disk into memory—transforming `A` from a simple editing verb into a memory management tool.
