@@ -69,6 +69,7 @@ bool is_tokenize_args(edlin_cmd_t* cmd, char* p, char* start) {
 }
 
 bool is_tokenize_query(edlin_cmd_t* cmd, char* p, char* start) {
+    cmd->token = TOK_ERROR;
     for(int i = OFFSET_RST; i < EDLIN_CMD_COUNT; ++i) {
         if(toupper(*p) == EDLIN_INFO[i].ascii) {
             cmd->token = EDLIN_INFO[i].token;
@@ -102,6 +103,7 @@ bool is_tokenize_no_args(edlin_cmd_t* cmd, char* p) {
     cmd->token = TOK_ERROR;
     for(int i = 0; i < OFFSET_A; ++i) {
         if(toupper(*p) == EDLIN_INFO[i].ascii) {
+            if(*(p + 1) != '\0') return true; //trailing arg syntax error
             cmd->token = EDLIN_INFO[i].token;
             return true;
         }
