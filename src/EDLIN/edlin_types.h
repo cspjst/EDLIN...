@@ -9,6 +9,8 @@ typedef uint16_t edlin_size_t;
 
 typedef enum {
     TOK_EDIT = 0,   // line# Edit a single line
+    TOK_HASH,       // # Line after the last line
+    TOK_DOT,        // . Current edit line
     TOK_HELP,       // ? Show help
     TOK_END,        // E End (save file)
     TOK_QUIT,       // Q Quit (throw away changes)

@@ -5,9 +5,9 @@
 
 #include <stdio.h>
 
-#define OFFSET_A 4
-#define OFFSET_RST 12
-#define EDLIN_CMD_COUNT 16
+#define OFFSET_A 6
+#define OFFSET_RST 14
+#define EDLIN_CMD_COUNT 18
 
 typedef struct {
     char ascii;
@@ -17,6 +17,8 @@ typedef struct {
 
 static const edlin_info_t EDLIN_INFO[] = {
     {' ', TOK_EDIT,     "Edit line                  line#"},
+    {'#', TOK_HASH,     "Line after the last line   #"},
+    {'.', TOK_DOT,      "Current edit line          ."},
     {'?', TOK_HELP,     "Show help                  ?"},
     {'E', TOK_END,      "End (save file)            E"},
     {'Q', TOK_QUIT,     "Quit (throw away changes)  Q"},
@@ -44,32 +46,19 @@ char* edlin_help(edlin_size_t i) {
 
 bool is_tokenize_no_args(edlin_cmd_t* cmd, char* p) {
     cmd->token = TOK_ERROR;
-    switch(toupper(*p)) {
-        case:'\0':
-            cmd->token = TOK_EMPTY;
+    for(int i = 0; i < OFFSET_A; ++i) {
+        if(toupper(*p) == EDLIN_INFO[i].ascii) {
+            if(*(p + 1) != '\0') return true; // trailing arg syntax error
+            cmd->token = EDLIN_INFO[i].token;
             return true;
-        case'?':
-            if(*(p + 1) != '\0') return false;
-            cmd->token = TOK_HELP;
-            return true;
-        case'E':
-            if(*(p + 1) != '\0') return true;
-            cmd->token = TOK_END;
-            return true;
-        case'Q':
-            if(*(p + 1) != '\0') return true;
-            cmd->token = TOK_QUIT;
-            return true;
-        default:
-            return false;
+        }
     }
+    return false;
 }
 
-// ***is_tokenize_args
-bool is_tokenize_ACDILMPW(edlin_cmd_t* cmd, char* p, char* start) {
+bool is_tokenize_args(edlin_cmd_t* cmd, char* p, char* start) {
     cmd->token = TOK_ERROR;
     for(int i = OFFSET_A; i < OFFSET_RST; ++i) {
-        // < OFFSET_RS move T into range 
         if(toupper(*p) == EDLIN_INFO[i].ascii) {
             if(*(p + 1) != '\0') return true; // trailing arg syntax error
             cmd->token = EDLIN_INFO[i].token;
@@ -91,15 +80,13 @@ bool is_tokenize_ACDILMPW(edlin_cmd_t* cmd, char* p, char* start) {
     return false;
 }
 
-// ***is_tokenize_interactive
-bool is_tokenize_RST(edlin_cmd_t* cmd, char* p, char* start) {
+bool is_tokenize_query(edlin_cmd_t* cmd, char* p, char* start) {
     for(int i = OFFSET_RST; i < EDLIN_CMD_COUNT; ++i) {
-        // i = OFFSET_RS
         if(toupper(*p) == EDLIN_INFO[i].ascii) {
             cmd->token = EDLIN_INFO[i].token;
             *p = ',';  // replace so CSV
             char* split = p + 1;
-            // Check for interactive modifier '?' before the command char
+            // 1. Check for interactive modifier '?' before the command char
             int j = 0;
             if(*(p - 1) == '?') {
                 *(p - 1) = ','; // replace so CSV
@@ -107,9 +94,7 @@ bool is_tokenize_RST(edlin_cmd_t* cmd, char* p, char* start) {
             } else {
                 cmd->argv[j++] = p; // non-interactive
             }
-            // ***return is_token_args
-            // ***dont need below?
-            // tokenize CSV list of args
+            // 2. tokenize CSV list of args
             if(*start == ',') { // check for current line syntax
                 cmd->argv[j++] = start;
             }
@@ -150,11 +135,9 @@ void edlin_tokenize(edlin_cmd_t* cmd) {
             continue;
         }
         // 3.1 leading args
-        // ***is_tokenize_args
-        if(is_tokenize_ACDILMPW(cmd, p, cmd->line)) return;
+        if(is_tokenize_args(cmd, p, cmd->line)) return;
         // 3.2 leading and trailing args
-        // ***is tokenize interactive
-        if(is_tokenize_RST(cmd, p, cmd->line)) return;
+        if(is_tokenize_query(cmd, p, cmd->line)) return;
         p++;
     }
     // 4. digits or syntax error
