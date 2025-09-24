@@ -25,12 +25,12 @@ int main(int argc, char* argv[]) {
     printf("%s: %i lines read\n", file->path, file->size);
 
 
-    while(cmd.op != TOK_QUIT) {
+    while(cmd.token != TOK_QUIT) {
         edlin_read_line(&cmd.line, stdin);
         edlin_trim_line(&cmd.line);
         printf(">%s<\n", cmd.line);
         edlin_tokenize(&cmd);
-        printf("token %i, %s\n", cmd.op, edlin_help(cmd.op));
+        printf("token %i, %s\n", cmd.token, edlin_help(cmd.token));
         printf("argc %i\n", cmd.argc);
         for (int i = 0; i < EDLIN_ARGC_MAX; i++) {
             printf("tokens[%d] = \"%s\"\n", i, cmd.argv[i]);
