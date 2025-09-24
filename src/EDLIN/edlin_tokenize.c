@@ -42,17 +42,12 @@ char* edlin_help(edlin_size_t i) {
     return EDLIN_INFO[i].help;
 }
 
-bool is_tokenize_empty(edlin_cmd_t* cmd, char* p) {
-    if(*p == '\0') {
-        cmd->op = TOK_EMPTY;
-        return true;
-    }
-    return false;
-}
-
-bool is_tokenize_EQ(edlin_cmd_t* cmd, char* p) {
+bool is_tokenize_no_args(edlin_cmd_t* cmd, char* p) {
     cmd->op = TOK_ERROR;
     switch(toupper(*p)) {
+        case:'\0':
+            cmd->op = TOK_EMPTY;
+            return true;
         case'?':
             if(*(p + 1) != '\0') return false;
             cmd->op = TOK_HELP;
@@ -70,9 +65,11 @@ bool is_tokenize_EQ(edlin_cmd_t* cmd, char* p) {
     }
 }
 
+// ***is_tokenize_args
 bool is_tokenize_ACDILMPW(edlin_cmd_t* cmd, char* p, char* start) {
     cmd->op = TOK_ERROR;
     for(int i = OFFSET_A; i < OFFSET_RST; ++i) {
+        // < OFFSET_RS move T into range 
         if(toupper(*p) == EDLIN_INFO[i].ascii) {
             if(*(p + 1) != '\0') return true; // trailing arg syntax error
             cmd->op = EDLIN_INFO[i].token;
@@ -94,8 +91,10 @@ bool is_tokenize_ACDILMPW(edlin_cmd_t* cmd, char* p, char* start) {
     return false;
 }
 
+// ***is_tokenize_interactive
 bool is_tokenize_RST(edlin_cmd_t* cmd, char* p, char* start) {
     for(int i = OFFSET_RST; i < EDLIN_CMD_COUNT; ++i) {
+        // i = OFFSET_RS
         if(toupper(*p) == EDLIN_INFO[i].ascii) {
             cmd->op = EDLIN_INFO[i].token;
             *p = ',';  // replace so CSV
@@ -108,6 +107,8 @@ bool is_tokenize_RST(edlin_cmd_t* cmd, char* p, char* start) {
             } else {
                 cmd->argv[j++] = p; // non-interactive
             }
+            // ***return is_token_args
+            // ***dont need below?
             // tokenize CSV list of args
             if(*start == ',') { // check for current line syntax
                 cmd->argv[j++] = start;
@@ -140,22 +141,22 @@ void edlin_tokenize(edlin_cmd_t* cmd) {
     cmd->argc = 0;
     // 1. set all pointers to NULL
     memset(cmd->argv, 0, sizeof(cmd->argv));
-    // 2. check if just hit enter
-    if(is_tokenize_empty(cmd, p)) return;
-    // 3. single character commands with no arguments
-    if(is_tokenize_EQ(cmd, p)) return;
-    // 4. single character commands with arguments
+    // 2. single character commands with no arguments
+    if(is_tokenize_no_args(cmd, p)) return;
+    // 3. single character commands with arguments
     while(*p != 0) {
         if(!isalpha(*p)) {
             p++;
             continue;
         }
-        // 4.1 leading args
+        // 3.1 leading args
+        // ***is_tokenize_args
         if(is_tokenize_ACDILMPW(cmd, p, cmd->line)) return;
-        // 4.2 leading and trailing args
+        // 3.2 leading and trailing args
+        // ***is tokenize interactive
         if(is_tokenize_RST(cmd, p, cmd->line)) return;
         p++;
     }
-    // 5. digits or syntax error
+    // 4. digits or syntax error
     do_tokenize_digits(cmd, cmd->line);
 }
