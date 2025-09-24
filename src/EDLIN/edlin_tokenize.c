@@ -44,18 +44,6 @@ char* edlin_help(edlin_size_t i) {
     return EDLIN_INFO[i].help;
 }
 
-bool is_tokenize_no_args(edlin_cmd_t* cmd, char* p) {
-    cmd->token = TOK_ERROR;
-    for(int i = 0; i < OFFSET_A; ++i) {
-        if(toupper(*p) == EDLIN_INFO[i].ascii) {
-            if(*(p + 1) != '\0') return true; // trailing arg syntax error
-            cmd->token = EDLIN_INFO[i].token;
-            return true;
-        }
-    }
-    return false;
-}
-
 bool is_tokenize_args(edlin_cmd_t* cmd, char* p, char* start) {
     cmd->token = TOK_ERROR;
     for(int i = OFFSET_A; i < OFFSET_RST; ++i) {
@@ -110,6 +98,17 @@ bool is_tokenize_query(edlin_cmd_t* cmd, char* p, char* start) {
     return false;
 }
 
+bool is_tokenize_no_args(edlin_cmd_t* cmd, char* p) {
+    cmd->token = TOK_ERROR;
+    for(int i = 0; i < OFFSET_A; ++i) {
+        if(toupper(*p) == EDLIN_INFO[i].ascii) {
+            cmd->token = EDLIN_INFO[i].token;
+            return true;
+        }
+    }
+    return false;
+}
+
 void do_tokenize_digits(edlin_cmd_t* cmd, char* p) {
     cmd->token = TOK_ERROR;
     while(*p != '\0') {
@@ -126,20 +125,20 @@ void edlin_tokenize(edlin_cmd_t* cmd) {
     cmd->argc = 0;
     // 1. set all pointers to NULL
     memset(cmd->argv, 0, sizeof(cmd->argv));
-    // 2. single character commands with no arguments
-    if(is_tokenize_no_args(cmd, p)) return;
-    // 3. single character commands with arguments
+    // 2. single character commands with arguments
     while(*p != 0) {
         if(!isalpha(*p)) {
             p++;
             continue;
         }
-        // 3.1 leading args
+        // 2.1 leading args
         if(is_tokenize_args(cmd, p, cmd->line)) return;
-        // 3.2 leading and trailing args
+        // 2.2 leading and trailing args
         if(is_tokenize_query(cmd, p, cmd->line)) return;
         p++;
     }
+    // 3. single character commands with no arguments
+    if(is_tokenize_no_args(cmd, cmd->line)) return;
     // 4. digits or syntax error
     do_tokenize_digits(cmd, cmd->line);
 }
