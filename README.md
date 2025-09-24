@@ -16,35 +16,50 @@ EDLIN had to operate within brutal constraints: 64KB of memory, 4.77MHz processo
 
 Running the 86-DOS emulator on an IBM PC with DOS 3.1 as a reference, I began using EDLIN firsthand. The programming challenges emerged quickly. I dug into EDLIN's command structure—the mix of `[parameters]COMMAND` and `COMMAND[parameters]` patterns, the elegant handling of optional arguments, and the clever use of context that made it so much more than a simple editor. This wasn't just a primitive tool; it was a beautifully designed system that enabled efficient text manipulation through a concise, expressive mini-language.
 
-## EDLIN functionality
+## EDLIN Functionality: A Multi-Modal Editing Experience
+Delving into EDLIN reveals its powerful command syntax. This wasn't a system built on a single, rigid grammar rule. Instead, it employed several distinct syntactic patterns, each elegantly matched to the prevailing use-case and task at hand — writing and editing computer programs. The command syntax enables the editor to shift between distinct modes: command input, mini-editor, text insertion, and interactive search/replace-each optimized for a specific editing task. This multi-modal design is the key to its power and efficiency.
 
-Delving into EDLIN reveals its powerful command syntax. This wasn't a system built on a single, rigid grammar rule. Instead, it employed several distinct syntactic patterns, each elegantly matched to the prevailing use-case and task at hand — writing and editing computer programs. The command syntax enables the editor to shift between distinct modes: command input, text insertion, and interactive search/replace.
+### 1. Command Mode: The Primary Interface
+Upon startup, EDLIN awaits commands. This mode follows a sophisticated yet intuitive syntax for manipulating text.
 
-EDLIN starts up in _command mode_ waiting for input. There are simple commands, such as End (E), Quit (Q), and Help (?). However, for the core editing commands—List (L), Page (P), Delete (D), Copy (C), and Move (M)—the logic follows a natural "select, then act" flow. You first specify what to operate on with a line number range (e.g., `10,20` operates on those lines), then issue the command: `[range]COMMAND`. This structure makes perfect sense for manipulating existing lines of text and has the added efficiency quirk of being able to omit the first line number to express starting at the current line (e.g., `,20L` lists from the current line to line 20).
++ Simple Commands: Single-character commands execute immediately, such as:
 
-This workflow expands for commands that require inputting new data—like Search (S), Replace (R), or Transfer (T). Here, the syntax expands and the structure becomes: `[range][?]COMMAND[text]`.
+  + `E` (End Edit & Save)
 
-This hybrid approach is where EDLIN's parser reveals its true sophistication. The command still terminates the parameter list, but it can be prefixed with a range and an interactive modifier (?), and suffixed with free-form text. For example:
+  + `Q` (Quit without Saving)
 
-+ `Stext` is valid — a raw search from the current line.
+  + `?` (Help)
 
-+ `1,10?Stext` is also valid — an _interactive mode_ search in a specific range.
++ "Select, Then Act" Commands: The core editing logic uses a `[range]COMMAND`pattern. This natural flow involves specifying a line number range first, then the action to perform on it.
 
-+ `Rold,new` works — replace from the current position.
+  + `10,20L` lists lines 10 through 20.
 
-+ `1,100?Rold,new` also works — _interactive mode_ replace across a range.
+  + `,20D` deletes from the current line (a convenient default) to line 20.
 
-Thus, EDLIN commands form an expandable grammar — a structural paradigm that is consistent and applicable across commands. A grammar that soon becomes second nature, allowing text to be wrangled into the desired shape with a quick flurry of commands.
++ Hybrid Search/Replace Commands: For commands requiring additional input, the grammar expands to [range][?]COMMAND[text]. The parser's sophistication allows for flexible combinations:
 
-Perhaps the most intersting modal change comes when entering a line number alone. This is interpreted by EDLIN as entering the _edit mode_, a mode where the user is given a mini text editor controlled by the function key 1 - 4, the insert, escape and return keys.
+  + `Stex`t performs a raw search from the current line.
 
-Thus, EDLIN is not only mutlitmodal but also it is multiparadigm.
+  + `1,100?Rold,new` performs an interactive replace (?) across a defined range, replacing old with new.
 
-Finally, hybrid commands like Insert (I) and Append (A) use a prefixed pattern, `[line]I`, acting as a bridge that accepts a single parameter before transitioning the editor from command mode into _insert mode_ for inputting text line by line. Exiting this mode back to command mode by pressing `Ctrl-C` or in some versions a fullstop `.` on its own line.
+### 2. Insert Mode: Adding New Text
+Commands like `I` (Insert) and their hybrid pattern, `[line]I`, act as a bridge. They accept a single starting line number before transitioning the editor from Command Mode into Insert Mode. In this state, the user enters text line-by-line. Exiting is done by entering a single period . on an empty line and pressing Enter (a convention adopted from FreeDOS, replacing the original Ctrl-C).
 
-But it is Append that stands as a stark testament to the brutal hardware constraints of early 1980s personal computers. While `I` switches the editor into insert mode for inputting new text from the user, the `A` command reveals a time when a large text file *could not fit into memory*. In an era where 64KB was a significant amount of RAM, editing a large file required a different strategy. EDLIN would load only the initial portion of the file. The `[#lines]A` command was not for adding new typed content, but for appending the next segment of the existing file from disk into memory—transforming `A` from a simple editing verb into a memory management tool.
+### 3. Line Edit Mode: The Single-Line Mini-Editor
+The most fascinating modal shift occurs when you enter a line number alone (e.g., 15). This enters _Line Edit Mode_, a powerful single-line editor controlled by function and control keys.
 
-In an era of severe memory constraints, this elegant design is what made EDLIN not just functional, but powerful and fast—a testament to the craftsmanship of early PC software developers such as Tim Paterson.
++ The current line's text is displayed and becomes the _template_.
+
++ Function Keys (F1-F4) are used to copy characters from the template onto the new line.
+
++ The Insert (Ins) key toggles between overwriting and inserting characters into the new line.
+
++ The Escape (Esc) key cancels all edits, restoring the original line.
+
++ Pressing Enter finalizes the edits, incorporating any changes made using the function keys and insert mode.
+
+### 4. Memory Management Commands: A Testament to Hardware Constraints
+Some commands reveal the brutal memory limitations of the early 1980s. The A (Append) command is a prime example. It was not for adding typed content, but for loading the next segment of a file from disk into RAM. When a file was too large for the 64KB memory limit, EDLIN would only load a portion. `[#lines]A` was a memory management tool, appending the next block of the file from disk to make it editable.
 
 ## Implementation notes 
 
