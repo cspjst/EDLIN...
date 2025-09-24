@@ -43,22 +43,22 @@ char* edlin_help(edlin_size_t i) {
 }
 
 bool is_tokenize_no_args(edlin_cmd_t* cmd, char* p) {
-    cmd->op = TOK_ERROR;
+    cmd->token = TOK_ERROR;
     switch(toupper(*p)) {
         case:'\0':
-            cmd->op = TOK_EMPTY;
+            cmd->token = TOK_EMPTY;
             return true;
         case'?':
             if(*(p + 1) != '\0') return false;
-            cmd->op = TOK_HELP;
+            cmd->token = TOK_HELP;
             return true;
         case'E':
             if(*(p + 1) != '\0') return true;
-            cmd->op = TOK_END;
+            cmd->token = TOK_END;
             return true;
         case'Q':
             if(*(p + 1) != '\0') return true;
-            cmd->op = TOK_QUIT;
+            cmd->token = TOK_QUIT;
             return true;
         default:
             return false;
@@ -67,12 +67,12 @@ bool is_tokenize_no_args(edlin_cmd_t* cmd, char* p) {
 
 // ***is_tokenize_args
 bool is_tokenize_ACDILMPW(edlin_cmd_t* cmd, char* p, char* start) {
-    cmd->op = TOK_ERROR;
+    cmd->token = TOK_ERROR;
     for(int i = OFFSET_A; i < OFFSET_RST; ++i) {
         // < OFFSET_RS move T into range 
         if(toupper(*p) == EDLIN_INFO[i].ascii) {
             if(*(p + 1) != '\0') return true; // trailing arg syntax error
-            cmd->op = EDLIN_INFO[i].token;
+            cmd->token = EDLIN_INFO[i].token;
             *p = '\0';  // shorten the string to its args
             int j = 0;
             // tokenize CSV list of args
@@ -96,7 +96,7 @@ bool is_tokenize_RST(edlin_cmd_t* cmd, char* p, char* start) {
     for(int i = OFFSET_RST; i < EDLIN_CMD_COUNT; ++i) {
         // i = OFFSET_RS
         if(toupper(*p) == EDLIN_INFO[i].ascii) {
-            cmd->op = EDLIN_INFO[i].token;
+            cmd->token = EDLIN_INFO[i].token;
             *p = ',';  // replace so CSV
             char* split = p + 1;
             // Check for interactive modifier '?' before the command char
@@ -126,12 +126,12 @@ bool is_tokenize_RST(edlin_cmd_t* cmd, char* p, char* start) {
 }
 
 void do_tokenize_digits(edlin_cmd_t* cmd, char* p) {
-    cmd->op = TOK_ERROR;
+    cmd->token = TOK_ERROR;
     while(*p != '\0') {
         if(!isdigit(*p)) return; // syntax error
         p++;
     }
-    cmd->op = TOK_EDIT;
+    cmd->token = TOK_EDIT;
     cmd->argc = 1;
     cmd->argv[0] = cmd->line;
 }
