@@ -40,7 +40,7 @@ typedef struct {
 
 typedef struct {
     edlin_line_t line;
-    edlin_token_t op;
+    edlin_token_t token;
     edlin_size_t argc;
     const char* argv[EDLIN_ARGC_MAX];
 } edlin_cmd_t;
