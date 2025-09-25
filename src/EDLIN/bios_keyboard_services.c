@@ -1,69 +1,85 @@
-/**
-* INT 16h Detailed Function List
-* Function	                            (AH)	    Device	    Inputs	                        System   Return
-* Read key press	                      0h	      Keyboard	  None	                        PC/XT    AH[1] = Scan code of the key pressed down	AL = ASCII character of the button pressed
-* Get the State of the keyboard buffer	  1h	      Keyboard	  None	                        PC/XT    AH = Scan code, ZF = 0 if key pressed down	AL = ASCII character, AX = 0 if no Scan codes
-* Get the State of the keyboard	          2h	      Keyboard	  None	                        PC/XT    AH = BIOS Keyboard flags
-* Establish repetition factor	          3h	      Keyboard	  AL = Mode                     AT+      None 
-*                                                                 BH = Repeat delay (if AL = 5) 
-*                                                                 BL = Typematic rate	
-* Keyboard Click adjustment	              4h	      Keyboard	  AL = 0 (off) or 1 (on)	    AT+      None
-* Simulate a keystroke	                  5h	      Keyboard	  CH = Scan code                AT,PS/2  AL = 0 If successful, 1 otherwise
-*                                                                 CL = ASCII Character	        
-*/
-#include "bios_keyboard_services.h" 
+#include "bios_keyboard_services.h"
 
-bios_key_t wait_for_keystroke_and_read() {
-    bios_key_t key;
+/**
+ * halts program until key with a scancode is pressed
+ * AH = 00
+ * on return:
+ *	AH = keyboard scan code
+ *	AL = ASCII character or zero if special function key
+ */
+void bios_wait_for_keystroke_and_read(bios_key_t* key) {
     __asm {
 		.8086
-		pushf                                ; not all BIOS functions are well nehaved 
-        push    ds                          
+		pushf               ; not all BIOS functions are well nehaved
+        push    ds
 
+        les     di, key
 		mov		ah, BIOS_WAIT_FOR_KEYSTROKE_AND_READ
 		int		BIOS_KEYBOARD_SERVICES
+		stosw
 
-        mov     key, ax
 		pop 	ds
 		popf
 	}
-    return key;
 }
 
-void get_keystroke_status( bios_key_state_t* key_status) {
+/**
+ * @note data code is *not* removed from buffer
+ * AH = 01
+ *	on return:
+ *	ZF = 0 if a key pressed (even Ctrl-Break)
+ *	AX = 0 if no scan code is available
+ *	AH = scan code
+ *	AL = ASCII character or zero if special function key
+ */
+void bios_get_keystroke_status( bios_key_state_t* key_state) {
     __asm {
 		.8086
-		pushf                               
-        push    ds                           
-    
-        les,    di, status
+		pushf
+        push    ds
+
+        les     di, key_state
 		mov		ah, BIOS_GET_KEYSTROKE_STATUS
 		int		BIOS_KEYBOARD_SERVICES
         stosw
         jz      ZERO
         mov     al, 1
         jmp     STORE
-ZERO:   xor     al, al          
+ZERO:   xor     al, al
 STORE:  stosb
-    
+
 		pop 	ds
 		popf
 	}
 }
 
-bios_keybd_info_t get_shift_status() {
-	bios_keybd_info_t flags;
+/**
+ * AH = 02
+ * on return:
+ * 	AL = BIOS keyboard flags (located in BIOS Data Area 40:17)
+ *
+ * 		|7|6|5|4|3|2|1|0|  AL or BIOS Data Area 40:17
+ * 		 | | | | | | | `---- right shift key depressed
+ * 		 | | | | | | `----- left shift key depressed
+ * 		 | | | | | `------ CTRL key depressed
+ * 		 | | | | `------- ALT key depressed
+ * 		 | | | `-------- scroll-lock is active
+ * 		 | | `--------- num-lock is active
+ * 		 | `---------- caps-lock is active
+ * 		 `----------- insert is active
+ */
+void bios_get_keyboard_flags(bios_keybd_info_t* flags) {
     __asm {
 		.8086
-		pushf                                ; not all BIOS functions are well nehaved 
-        push    ds                          
+		pushf
+        push    ds
 
+        les     di, flags
 		mov		ah, BIOS_GET_SHIFT_STATUS
 		int		BIOS_KEYBOARD_SERVICES
+		mov     es:[di], al
 
-        mov     flags, ah
 		pop 	ds
 		popf
 	}
-    return flags;
 }
