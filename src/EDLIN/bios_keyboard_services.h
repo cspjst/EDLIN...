@@ -16,15 +16,25 @@
 
 #include <stdint.h>
 
+typedef uint8_t bios_keybd_info_t;
+
+typedef struct {
+    uint8_t ascii;
+    uint8_t scan;
+} bios_key_parts_t;
+
 typedef union {
     uint16_t key;
-    typedef struct {  
-        uint8_t ascii;
-        uint8_t scan;
-    } parts;
+    bios_key_parts_t parts;
 } bios_key_t;
 
-typedef uint8_t bios_keybd_info_t;
+// Pack the struct to ensure no padding
+#pragma pack(1)
+typedef struct {
+    bios_key_t key;
+    uint8_t is_pressed;
+} bios_key_state_t;
+#pragma pack()
 
 #define BIOS_KEYBOARD_SERVICES    16h
 
@@ -41,7 +51,7 @@ typedef uint8_t bios_keybd_info_t;
 
 bios_key_t wait_for_keystroke_and_read();
 
-bios_key_t get_keystroke_status();
+void get_keystroke_status(bios_key_state_t* key_status)
 
 bios_keybd_info_t get_shift_status();
 
