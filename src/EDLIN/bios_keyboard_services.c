@@ -14,11 +14,41 @@
 #include "bios_keyboard_services.h" 
 
 bios_key_t wait_for_keystroke_and_read() {
-  
+    bios_key_t key;
+    __asm {
+		.8086
+		pushf                                ; not all BIOS functions are well nehaved 
+        push    ds                           ; ditto unreliable behaviour
+
+		mov		ah, BIOS_WAIT_FOR_KEYSTROKE_AND_READ
+		int		BIOS_KEYBOARD_SERVICES
+
+        mov     key, ax
+		pop 	ds
+		popf
+	}
+    return key;
 }
 
-bios_key_t get_keystroke_status() {
-  
+void get_keystroke_status( bios_key_state_t* key_status) {
+    __asm {
+		.8086
+		pushf                                ; not all BIOS functions are well nehaved 
+        push    ds                           ; ditto unreliable behaviour
+    
+        les,    di, status
+		mov		ah, BIOS_GET_KEYSTROKE_STATUS
+		int		BIOS_KEYBOARD_SERVICES
+        stosw
+        jz      ZERO
+        mov     al, 1
+        jmp     STORE
+ZERO:   xor     al, al          
+STORE:  stosb
+    
+		pop 	ds
+		popf
+	}
 }
 
 bios_keybd_info_t get_shift_status() {
