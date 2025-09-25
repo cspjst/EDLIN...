@@ -18,7 +18,7 @@ bios_key_t wait_for_keystroke_and_read() {
     __asm {
 		.8086
 		pushf                                ; not all BIOS functions are well nehaved 
-        push    ds                           ; ditto unreliable behaviour
+        push    ds                          
 
 		mov		ah, BIOS_WAIT_FOR_KEYSTROKE_AND_READ
 		int		BIOS_KEYBOARD_SERVICES
@@ -33,8 +33,8 @@ bios_key_t wait_for_keystroke_and_read() {
 void get_keystroke_status( bios_key_state_t* key_status) {
     __asm {
 		.8086
-		pushf                                ; not all BIOS functions are well nehaved 
-        push    ds                           ; ditto unreliable behaviour
+		pushf                               
+        push    ds                           
     
         les,    di, status
 		mov		ah, BIOS_GET_KEYSTROKE_STATUS
@@ -52,17 +52,18 @@ STORE:  stosb
 }
 
 bios_keybd_info_t get_shift_status() {
-  
-}
+	bios_keybd_info_t flags;
+    __asm {
+		.8086
+		pushf                                ; not all BIOS functions are well nehaved 
+        push    ds                          
 
-void set_keyboard_typematic(uint8_t mode, uint8_t delay, uint8_t rate) {
-  
-}
+		mov		ah, BIOS_GET_SHIFT_STATUS
+		int		BIOS_KEYBOARD_SERVICES
 
-void keyboard_click_adjustment(bool state) {
-  
-}
-
-bool keyboard_buffer_write(bios_key_t key) {
-  
+        mov     flags, ah
+		pop 	ds
+		popf
+	}
+    return flags;
 }
