@@ -42,9 +42,8 @@ typedef struct {
 #define BIOS_GET_KEYSTROKE_STATUS             1 
 #define BIOS_GET_SHIFT_STATUS                 2
 #define BIOS_SET_KEYBOARD_TYPEMATIC           3
-#define BIOS_KEYBOARD_CLICK_ADJUSTMENT        4
-#define BIOS_KEYBOARD_BUFFER_WRITE            5
-
+// #define BIOS_KEYBOARD_CLICK_ADJUSTMENT        4
+// #define BIOS_KEYBOARD_BUFFER_WRITE            5
 // #define BIOS_WAIT_FOR_KEYSTROKE_AND_READ      10
 // #define BIOS_GET_KEYSTROKE_STATUS             11
 // #define BIOS_GET_SHIFT_STATUS                 12
@@ -57,10 +56,8 @@ bios_keybd_info_t get_shift_status();
 
 void set_keyboard_typematic(uint8_t mode, uint8_t delay, uint8_t rate);
 
-void keyboard_click_adjustment(bool state);
-
-bool keyboard_buffer_write(bios_key_t key);
-
+// void keyboard_click_adjustment(bool state);
+// bool keyboard_buffer_write(bios_key_t key);
 // wait_for_keystroke_and_read
 // get_keystroke_status
 // get_shift_status
