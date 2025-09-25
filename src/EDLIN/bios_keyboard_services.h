@@ -22,7 +22,7 @@ typedef union {
         uint8_t ascii;
         uint8_t scan;
     } parts;
-} bios_key_t
+} bios_key_t;
 
 typedef uint8_t bios_keybd_info_t;
 
