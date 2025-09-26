@@ -43,7 +43,7 @@ typedef union {
 typedef struct {
     bios_key_t key;
     uint8_t is_pressed;
-} bios_key_state_t;
+} bios_key_event_t;
 #pragma pack()
 
 #define BIOS_KEYBOARD_SERVICES    16h
@@ -54,7 +54,7 @@ typedef struct {
 
 void bios_wait_for_keystroke_and_read(bios_key_t* key);
 
-void bios_get_keystroke_status(bios_key_state_t* key_state);
+void bios_get_keystroke_status(bios_key_event_t* key_state);
 
 void bios_get_keyboard_flags(bios_keybd_info_t* flags);
 
