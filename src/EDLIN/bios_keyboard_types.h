@@ -19,9 +19,9 @@ typedef union {
 
 #pragma pack(1)
 typedef struct {
-    bios_key_t key;
-    uint8_t is_pressed;
-} bios_key_event_t;
+    bios_key_t charscan;
+    uint8_t pressed;
+} bios_key_status_t;
 #pragma pack()
 
 #endif

@@ -7,11 +7,6 @@
 #define OFFSET_A 6
 #define OFFSET_RST 14
 
-typedef struct {
-    char ascii;
-    edlin_token_t token;
-} edlin_token_t;
-
 static const edlin_token_t EDLIN_TOKENS[] = {
     {' ', TOK_EDIT},    // Edit line                  line#
     {'#', TOK_HASH},     // Line after the last line   #
@@ -30,8 +25,8 @@ static const edlin_token_t EDLIN_TOKENS[] = {
     {'R', TOK_REPLACE},  // Replace                    [range][?]R[old],[new]
     {'S', TOK_SEARCH},   // Search                     [range][?]S[text]
     {'T', TOK_TRANSFER}, // Transfer                   [toline]Tfilepath
-    {' ', TOK_ERROR},    
-    {' ', TOK_EMPTY},    
+    {' ', TOK_ERROR},
+    {' ', TOK_EMPTY},
     {' ', TOK_UNKNOWN}
 };
 

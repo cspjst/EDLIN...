@@ -14,15 +14,18 @@
 #ifndef BIOS_KEYBOARD_SERVICES_H
 #define BIOS_KEYBOARD_SERVICES_H
 
-#include "bios_keybaord_types.h"
+#include "bios_keyboard_types.h"
+#include <stdbool.h>
 
-bios_key_event_t key_event_t wait_key_event();
+char wait_key_char();
 
-bios_key_event_t key_event_t poll_key_event();
+char wait_scan_code();
+
+bool wait_yesno(const char* question);
 
 void bios_wait_for_keystroke_and_read(bios_key_t* key);
 
-void bios_get_keystroke_status(bios_key_event_t* key_state);
+void bios_get_keystroke_status(bios_key_status_t* status);
 
 void bios_get_keyboard_flags(bios_keybd_info_t* flags);
 

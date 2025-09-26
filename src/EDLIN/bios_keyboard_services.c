@@ -1,29 +1,27 @@
 #include "bios_keyboard_services.h"
-#include "bios_keyboard_constants.h
+#include "bios_keyboard_constants.h"
+#include "bios_keyboard_types.h"
+#include "bios_keyboard_scan_codes.h"
+#include <stdio.h>
 
-key_event_t wait_key_event(void) {
+char wait_key_char() {
     bios_key_t key;
     bios_wait_for_keystroke_and_read(&key);
-    return (key_event_t){
-        .ascii = key.parts.ascii,
-        .scan  = key.parts.scan
-    };
+    return key.parts.ascii;
 }
 
-key_event_t poll_key_event(void) {
-    bios_key_state_t state;
-    bios_get_keystroke_status(&state);
-    if (state.is_pressed) {
-        return (key_event_t){
-            .ascii = state.key.parts.ascii,
-            .scan  = state.key.parts.scan
-        };
-    } else {
-        return (key_event_t){
-            .ascii = 0,
-            .scan  = 0
-        };
-    }
+char wait_scan_code()  {
+    bios_key_t key;
+    bios_wait_for_keystroke_and_read(&key);
+    return key.parts.scan;
+}
+
+bool wait_yesno(const char* question) {
+    printf("%s(Y/N)?", question);
+    fflush(stdout);
+    bool result = (wait_scan_code() == SCAN_Y);
+    if (!result) printf("\n");
+    return result;
 }
 
 /**
@@ -58,7 +56,7 @@ void bios_wait_for_keystroke_and_read(bios_key_t* key) {
  *	AH = scan code
  *	AL = ASCII character or zero if special function key
  */
-void bios_get_keystroke_status( bios_key_event_t* key_state) {
+void bios_get_keystroke_status(bios_key_status_t* key_state) {
     __asm {
 		.8086
 		pushf

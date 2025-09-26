@@ -1,6 +1,7 @@
 #include "edlin_file.h"
 #include "edlin_errors.h"
 #include "edlin_types.h"
+#include "bios_keyboard_services.h"
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
@@ -33,12 +34,6 @@ void edlin_free_file(edlin_file_t* file) {
         free(file->lines);
     }
     free(file);
-}
-
-bool edlin_yesno() {
-    printf("Continue (Y/N)?");
-    fflush(stdout);
-    return toupper(getchar()) == 'Y';
 }
 
 edlin_line_t* edlin_new_line() {
@@ -134,7 +129,7 @@ void edlin_print_file(edlin_file_t* file) {
         if (
             (i + 1) % EDLIN_PAGE_SIZE == 0
             && i + 1 < file->size
-            && !edlin_yesno()
+            && !wait_yesno("Continue ")
         ) {
             printf("\n");
             return;

@@ -1,9 +1,8 @@
 #include "EDLIN/edlin_config.h"
 #include "EDLIN/edlin_file.h"
 #include "EDLIN/edlin_tokenize.h"
-#include "EDLIN/help.h"
+#include "EDLIN/edlin_parse.h"
 #include "EDLIN/edlin_errors.h"
-#include "EDLIN/bios_keyboard_services.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -25,17 +24,12 @@ int main(int argc, char* argv[]) {
     }
     edlin_load_file(file);
     printf("%s: %i lines read\n", file->path, file->size);
-    
-    while(cmd.token != TOK_QUIT) {
+
+    do {
+        printf("*");
         edlin_read_line(&cmd.line, stdin);
         edlin_trim_line(&cmd.line);
-        printf(">%s<\n", cmd.line);
         edlin_tokenize(&cmd);
-        printf("token %i, %s\n", cmd.token, EDLIN_HELP[cmd.token]);
-        printf("argc %i\n", cmd.argc);
-        for (int i = 0; i < EDLIN_ARGC_MAX; i++) {
-            printf("tokens[%d] = \"%s\"\n", i, cmd.argv[i]);
-        }
-    }
+    } while(edlin_parse(&cmd, file));
     return EXIT_SUCCESS;
 }

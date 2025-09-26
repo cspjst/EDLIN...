@@ -28,7 +28,7 @@ typedef enum {
     TOK_ERROR,      // recognised command but syntax error
     TOK_EMPTY,      // user hit return on whitespace line
     TOK_UNKNOWN
-} edlin_token_t;
+} enum_token_t;
 
 typedef char edlin_line_t[EDLIN_LINE_SIZE];
 
@@ -42,9 +42,14 @@ typedef struct {
 
 typedef struct {
     edlin_line_t line;
-    edlin_token_t token;
+    enum_token_t token;
     edlin_size_t argc;
     const char* argv[EDLIN_ARGC_MAX];
 } edlin_cmd_t;
+
+typedef struct {
+    char ascii;
+    enum_token_t token;
+} edlin_token_t;
 
 #endif
