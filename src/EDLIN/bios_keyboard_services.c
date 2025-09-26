@@ -1,4 +1,5 @@
 #include "bios_keyboard_services.h"
+#include "bios_keyboard_constants.h
 
 /**
  * halts program until key with a scancode is pressed
