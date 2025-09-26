@@ -1,13 +1,11 @@
 #include "edlin_tokenize.h"
+#include "edlin_constants.h"
 #include "edlin_types.h"
 #include <ctype.h>
 #include <string.h>
 
-#include <stdio.h>
-
 #define OFFSET_A 6
 #define OFFSET_RST 14
-#define EDLIN_CMD_COUNT 18
 
 typedef struct {
     char ascii;
