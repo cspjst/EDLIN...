@@ -1,4 +1,6 @@
 #include "edlin_parse.h"
+#include "edlin_constants.h"
+#include "edlin_help.h"
 
 // dispatch table - maps tokens to handler functions
 static const edlin_command_handler_t EDLIN_DISPATCH[] = {
@@ -29,16 +31,15 @@ bool edlin_dispatch_command(edlin_cmd_t* cmd, edlin_file_t* file) {
     return fn(cmd, file);
 }
 
-bool edlin_command_dispatcher(edlin_cmd_t* cmd, edlin_file_t* file) {
-    return false;
-}
-
 bool edlin_handle_edit(edlin_cmd_t* cmd, edlin_file_t* file) {
     return false;
 }
 
 bool edlin_handle_help(edlin_cmd_t* cmd, edlin_file_t* file) {
-    return false;
+    for(int i = 0, i < EDLIN_CMD_COUNT; ++i) {
+        printf("%s\n", EDLIN_HELP[i]);
+    }
+    return true;
 }
 
 bool edlin_handle_end(edlin_cmd_t* cmd, edlin_file_t* file) {
