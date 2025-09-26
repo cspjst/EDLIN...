@@ -32,7 +32,7 @@ void bios_wait_for_keystroke_and_read(bios_key_t* key) {
  *	AH = scan code
  *	AL = ASCII character or zero if special function key
  */
-void bios_get_keystroke_status( bios_key_state_t* key_state) {
+void bios_get_keystroke_status( bios_key_event_t* key_state) {
     __asm {
 		.8086
 		pushf
