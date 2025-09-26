@@ -12,44 +12,39 @@
 typedef struct {
     char ascii;
     edlin_token_t token;
-    char* help;
-} edlin_info_t;
+} edlin_token_t;
 
-static const edlin_info_t EDLIN_INFO[] = {
-    {' ', TOK_EDIT,     "Edit line                  line#"},
-    {'#', TOK_HASH,     "Line after the last line   #"},
-    {'.', TOK_DOT,      "Current edit line          ."},
-    {'?', TOK_HELP,     "Show help                  ?"},
-    {'E', TOK_END,      "End (save file)            E"},
-    {'Q', TOK_QUIT,     "Quit (throw away changes)  Q"},
-    {'A', TOK_APPEND,   "Append                     [#lines]A"},
-    {'C', TOK_COPY,     "Copy                       [range][,times]C"},
-    {'D', TOK_DELETE,   "Delete                     [range]D Delete lines"},
-    {'I', TOK_INSERT,   "Insert                     [line]I"},
-    {'L', TOK_LIST,     "List                       [range]L"},
-    {'M', TOK_MOVE,     "Move                       [range],tolineM"},
-    {'P', TOK_PAGE,     "Page                       [range]P"},
-    {'W', TOK_WRITE,    "Write                      [#lines]W"},
-    {'R', TOK_REPLACE,  "Replace                    [range][?]R[old],[new]"},
-    {'S', TOK_SEARCH,   "Search                     [range][?]S[text]"},
-    {'T', TOK_TRANSFER, "Transfer                   [toline]Tfilepath"},
-    {' ', TOK_ERROR,    "Command syntax error!"},
-    {' ', TOK_EMPTY,    "Empty input!"},
-    {' ', TOK_UNKNOWN, "Unknown command!"}
+static const edlin_token_t EDLIN_TOKENS[] = {
+    {' ', TOK_EDIT},    // Edit line                  line#
+    {'#', TOK_HASH},     // Line after the last line   #
+    {'.', TOK_DOT},      // Current edit line          .
+    {'?', TOK_HELP},     // Show help                  ?
+    {'E', TOK_END},      // End (save file)            E
+    {'Q', TOK_QUIT},     // Quit (throw away changes)  Q
+    {'A', TOK_APPEND},   // Append                     [#lines]A
+    {'C', TOK_COPY},     // Copy                       [range][,times]C
+    {'D', TOK_DELETE},   // Delete                     [range]D Delete lines
+    {'I', TOK_INSERT},   // Insert                     [line]I
+    {'L', TOK_LIST},     // List                       [range]L
+    {'M', TOK_MOVE},     // Move                       [range],tolineM
+    {'P', TOK_PAGE},     // Page                       [range]P
+    {'W', TOK_WRITE},    // Write                      [#lines]W
+    {'R', TOK_REPLACE},  // Replace                    [range][?]R[old],[new]
+    {'S', TOK_SEARCH},   // Search                     [range][?]S[text]
+    {'T', TOK_TRANSFER}, // Transfer                   [toline]Tfilepath
+    {' ', TOK_ERROR},    
+    {' ', TOK_EMPTY},    
+    {' ', TOK_UNKNOWN}
 };
 
 static const char EDLIN_QUERY[] = "?";
 
-char* edlin_help(edlin_size_t i) {
-    return EDLIN_INFO[i].help;
-}
-
 bool is_tokenize_args(edlin_cmd_t* cmd, char* p, char* start) {
     cmd->token = TOK_ERROR;
     for(int i = OFFSET_A; i < OFFSET_RST; ++i) {
-        if(toupper(*p) == EDLIN_INFO[i].ascii) {
+        if(toupper(*p) == EDLIN_TOKENS[i].ascii) {
             if(*(p + 1) != '\0') return true; // trailing arg syntax error
-            cmd->token = EDLIN_INFO[i].token;
+            cmd->token = EDLIN_TOKENS[i].token;
             *p = '\0';  // shorten the string to its args
             int j = 0;
             // tokenize CSV list of args
@@ -71,8 +66,8 @@ bool is_tokenize_args(edlin_cmd_t* cmd, char* p, char* start) {
 bool is_tokenize_query(edlin_cmd_t* cmd, char* p, char* start) {
     cmd->token = TOK_ERROR;
     for(int i = OFFSET_RST; i < EDLIN_CMD_COUNT; ++i) {
-        if(toupper(*p) == EDLIN_INFO[i].ascii) {
-            cmd->token = EDLIN_INFO[i].token;
+        if(toupper(*p) == EDLIN_TOKENS[i].ascii) {
+            cmd->token = EDLIN_TOKENS[i].token;
             *p = ',';  // replace so CSV
             char* split = p + 1;
             // 1. Check for interactive modifier '?' before the command char
@@ -102,9 +97,9 @@ bool is_tokenize_query(edlin_cmd_t* cmd, char* p, char* start) {
 bool is_tokenize_no_args(edlin_cmd_t* cmd, char* p) {
     cmd->token = TOK_ERROR;
     for(int i = 0; i < OFFSET_A; ++i) {
-        if(toupper(*p) == EDLIN_INFO[i].ascii) {
+        if(toupper(*p) == EDLIN_TOKENS[i].ascii) {
             if(*(p + 1) != '\0') return true; //trailing arg syntax error
-            cmd->token = EDLIN_INFO[i].token;
+            cmd->token = EDLIN_TOKENS[i].token;
             return true;
         }
     }
