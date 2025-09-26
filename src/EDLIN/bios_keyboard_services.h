@@ -16,6 +16,10 @@
 
 #include "bios_keybaord_types.h"
 
+bios_key_event_t key_event_t wait_key_event();
+
+bios_key_event_t key_event_t poll_key_event();
+
 void bios_wait_for_keystroke_and_read(bios_key_t* key);
 
 void bios_get_keystroke_status(bios_key_event_t* key_state);
