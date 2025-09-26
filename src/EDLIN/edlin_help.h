@@ -1,9 +1,7 @@
 #ifndef EDLIN_HELP_H
 #define EDLIN_HELP_H
 
-#include "edlin_types.h" 
-
-// in token enum order
+// strings are arrnaged in token enum order
 static const char EDLIN_HELP[] = {
   {"Edit line                  line#"},
   {"Line after the last line   #"},
