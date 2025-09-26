@@ -7,9 +7,9 @@
 // handler function signature for dispatch table
 typedef bool (*edlin_command_handler_t)(edlin_cmd_t* cmd, edlin_file_t* file);
 
-// handler functions
 bool edlin_command_dispatcher(edlin_cmd_t* cmd, edlin_file_t* file);
 
+// handler functions:
 bool edlin_handle_edit(edlin_cmd_t* cmd, edlin_file_t* file);
 
 bool edlin_handle_help(edlin_cmd_t* cmd, edlin_file_t* file);
