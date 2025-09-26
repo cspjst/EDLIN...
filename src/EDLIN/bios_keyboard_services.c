@@ -1,6 +1,31 @@
 #include "bios_keyboard_services.h"
 #include "bios_keyboard_constants.h
 
+key_event_t wait_key_event(void) {
+    bios_key_t key;
+    bios_wait_for_keystroke_and_read(&key);
+    return (key_event_t){
+        .ascii = key.parts.ascii,
+        .scan  = key.parts.scan
+    };
+}
+
+key_event_t poll_key_event(void) {
+    bios_key_state_t state;
+    bios_get_keystroke_status(&state);
+    if (state.is_pressed) {
+        return (key_event_t){
+            .ascii = state.key.parts.ascii,
+            .scan  = state.key.parts.scan
+        };
+    } else {
+        return (key_event_t){
+            .ascii = 0,
+            .scan  = 0
+        };
+    }
+}
+
 /**
  * halts program until key with a scancode is pressed
  * AH = 00
