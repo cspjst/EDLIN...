@@ -58,7 +58,7 @@ typedef enum {
     SCAN_APOSTROPHE = 0x28,  // '
     SCAN_GRAVE      = 0x29,  // `
 
-    SCAN_BACKSLASH  = 0x2B,  // \
+    SCAN_BACKSLASH  = 0x2B,
     SCAN_Z          = 0x2C,
     SCAN_X          = 0x2D,
     SCAN_C          = 0x2E,

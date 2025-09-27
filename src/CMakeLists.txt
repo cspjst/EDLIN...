@@ -43,8 +43,9 @@ endif()
 file(GLOB SOURCES
     CONFIGURE_DEPENDS
     *.c
+    BIOS/*c
     DOS/*.c
-    # EDLIN/*.c
+    EDLIN/*.c
 )
 
 # message(Source list="${SOURCES}")

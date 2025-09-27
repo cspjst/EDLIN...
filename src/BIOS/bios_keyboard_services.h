@@ -15,13 +15,6 @@
 #define BIOS_KEYBOARD_SERVICES_H
 
 #include "bios_keyboard_types.h"
-#include <stdbool.h>
-
-char wait_key_char();
-
-char wait_scan_code();
-
-bool wait_yesno(const char* question);
 
 void bios_wait_for_keystroke_and_read(bios_key_t* key);
 

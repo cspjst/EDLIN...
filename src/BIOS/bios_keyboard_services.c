@@ -1,28 +1,6 @@
 #include "bios_keyboard_services.h"
 #include "bios_keyboard_constants.h"
 #include "bios_keyboard_types.h"
-#include "bios_keyboard_scan_codes.h"
-#include <stdio.h>
-
-char wait_key_char() {
-    bios_key_t key;
-    bios_wait_for_keystroke_and_read(&key);
-    return key.parts.ascii;
-}
-
-char wait_scan_code()  {
-    bios_key_t key;
-    bios_wait_for_keystroke_and_read(&key);
-    return key.parts.scan;
-}
-
-bool wait_yesno(const char* question) {
-    printf("%s(Y/N)?", question);
-    fflush(stdout);
-    bool result = (wait_scan_code() == SCAN_Y);
-    if (!result) printf("\n");
-    return result;
-}
 
 /**
  * halts program until key with a scancode is pressed

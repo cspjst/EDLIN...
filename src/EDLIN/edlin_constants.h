@@ -1,0 +1,9 @@
+#ifndef EDLIN_CONSTANTS_H
+#define EDLIN_CONSTANTS_H
+
+#define EDLIN_LINE_SIZE  256
+#define EDLIN_PAGE_SIZE 23
+#define EDLIN_ARGC_MAX 5
+#define EDLIN_CMD_COUNT 17
+
+#endif
