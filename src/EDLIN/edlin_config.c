@@ -1,5 +1,6 @@
 #include "edlin_config.h"
 #include "edlin_errors.h"
+#include "edlin_file.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -11,7 +12,7 @@ It is free software, and you are welcome to redistribute it\n\
 under the terms of the MIT License.\n\n\
 ";
 
-static const char EDLIN_USAGE[] = " usage: EDLIN file_name [-c <max lines>]";
+static const char EDLIN_USAGE[] = " usage: EDLIN [path] <file name> [/B]";
 
 static const char EDLIN_MSG_FILENAME[] = "File name must be specified";
 
@@ -50,5 +51,9 @@ bool edlin_config(int argc, char* argv[], edlin_file_t* file) {
         edlin_panic(EDLIN_ERR_MISSING_ARG, EDLIN_MSG_FILENAME);
         return false;
     }
+    if(!edlin_load_file(file)) {
+        return false;
+    }
+    printf("%s: %u lines read\n", file->filepath, file->size);
     return true;
 }
