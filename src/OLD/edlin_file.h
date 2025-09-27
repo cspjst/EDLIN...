@@ -18,6 +18,4 @@ bool edlin_load_file(edlin_file_t* file);
 
 void edlin_print_file(edlin_file_t* file);
 
-char edlin_edit(edlin_file_t* file);
-
 #endif

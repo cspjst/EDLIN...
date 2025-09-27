@@ -43,7 +43,8 @@ endif()
 file(GLOB SOURCES
     CONFIGURE_DEPENDS
     *.c
-    EDLIN/*.c
+    DOS/*.c
+    # EDLIN/*.c
 )
 
 # message(Source list="${SOURCES}")
