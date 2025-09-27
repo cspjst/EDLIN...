@@ -8,6 +8,7 @@
 #define DOS_ERROR 0FFFFh
 #define DOS_INSUFFICIENT_MEMORY 8
 #define DOS_PARAGRAPH_SIZE 16L
+#define DOS_MCB_OVERHEAD DOS_PARAGRAPH_SIZE
 
 uint32_t dos_memory_available();
 
