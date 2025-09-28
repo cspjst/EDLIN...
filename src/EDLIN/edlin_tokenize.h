@@ -4,6 +4,6 @@
 #include "edlin_constants.h"
 #include "edlin_types.h"
 
-const char* edlin_tokenize(edlin_cmd_t* cmd, const char* p);
+char* edlin_tokenize(edlin_cmd_t* cmd, char* p);
 
 #endif

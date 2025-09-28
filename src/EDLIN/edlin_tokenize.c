@@ -97,31 +97,32 @@ bool is_delimiter(char c) {
     );
 }
 
-const char* tokenize_digits(edlin_cmd_t* cmd, const char* p) {
-    if(is_delimiter(*p) || !isdigit(*p) || *p != '.') return p;
+char* tokenize_number(edlin_cmd_t* cmd, char* p) {
+    if(!isdigit(*p) && *p != '.') return p;
     cmd->token = TOK_NUMBER;
     cmd->argc = 1;
-    while(!is_delimiter(*p) || *p != ';') {
-        if(!isdigit(*p) && *p != '.') return p; // syntax error
-        p++;
-    }
     cmd->argv[0] = p;
+    while(isdigit(*p)) p++;
+    if(is_delimiter(*p) || *p == ';') *p = '\0';
     return p;
 }
 
-const char* edlin_tokenize(edlin_cmd_t* cmd, const char* input) {
-    const char* p = input;
-    cmd->argc = 0;
-    // 1. consume leading whitespace
+char* tokenize_empty(edlin_cmd_t* cmd, char* p) {
     while(isspace(*p)) p++;
-    printf("len=%i\n", strlen(p));
     if(!strlen(p)) {
         cmd->token = TOK_EMPTY;
         return p;
     }
-    cmd->token = TOK_ERROR;
+    return p;
+}
+
+char* edlin_tokenize(edlin_cmd_t* cmd, char* input) {
+    char* p = input;
+    memset(cmd, 0, sizeof(edlin_cmd_t));
+    p = tokenize_empty(cmd, p);
+
     // 1. set all pointers to NULL
-    memset(cmd->argv, 0, sizeof(cmd->argv));
+
     // 2. single character commands with arguments
     /*
     while(*p != 0) {
@@ -139,5 +140,5 @@ const char* edlin_tokenize(edlin_cmd_t* cmd, const char* input) {
     // 3. single character commands with no arguments
     //if(is_tokenize_no_args(cmd, p)) return;
     // 4. digits or syntax error
-    return tokenize_digits(cmd, p);
+    return tokenize_number(cmd, p);
 }
