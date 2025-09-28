@@ -4,7 +4,6 @@
 #include "edlin_types.h"
 #include "edlin_kbd.h"
 #include "../DOS/dos_memory.h"
-#include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -63,18 +62,6 @@ bool edlin_read_line(edlin_line_t* line, FILE* istream) {
     return true;
 }
 
-void edlin_trim_line(edlin_line_t* line) {
-    if (line == NULL) return;
-    char* p = *line;
-    // Trim newline and anything after it
-    size_t len = strcspn(p, "\n");
-    p[len] = '\0';
-    // Trim trailing whitespace
-    while (len > 0 && isspace((unsigned char)p[len - 1])) {
-        p[--len] = '\0';
-    }
-}
-
 bool edlin_load_file(edlin_file_t* file) {
     if (!file) {
         edlin_panic(EDLIN_ERR_NULL, "Null pointer in load file");
@@ -105,7 +92,6 @@ bool edlin_load_file(edlin_file_t* file) {
 
             continue;
         }
-        edlin_trim_line(line);
         file->lines[file->size++] = line;
     }
 
@@ -115,7 +101,7 @@ bool edlin_load_file(edlin_file_t* file) {
 
 void edlin_print_file(edlin_file_t* file) {
     for(edlin_size_t i = 0; i < file->size; ++i) {
-        printf("%s\n", *file->lines[i]);
+        printf("%s", *file->lines[i]);
         if (
             (i + 1) % EDLIN_PAGE_SIZE == 0
             && i + 1 < file->size
@@ -126,3 +112,18 @@ void edlin_print_file(edlin_file_t* file) {
         }
     }
 }
+
+
+/*
+void edlin_trim_line(edlin_line_t* line) {
+    if (line == NULL) return;
+    char* p = *line;
+    // Trim newline and anything after it
+    size_t len = strcspn(p, "\n");
+    p[len] = '\0';
+    // Trim trailing whitespace
+    while (len > 0 && isspace((unsigned char)p[len - 1])) {
+        p[--len] = '\0';
+    }
+}
+ */

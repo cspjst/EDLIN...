@@ -12,8 +12,6 @@ edlin_line_t* edlin_new_line();
 
 bool edlin_read_line(edlin_line_t* line, FILE* istream);
 
-void edlin_trim_line(edlin_line_t* line);
-
 bool edlin_load_file(edlin_file_t* file);
 
 void edlin_print_file(edlin_file_t* file);
