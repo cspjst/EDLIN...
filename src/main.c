@@ -18,6 +18,10 @@ int main(int argc, char* argv[]) {
         while(cmd.token != TOK_EMPTY) {
             p = edlin_tokenize(&cmd, p);
             debug_cmd_t(&cmd);
+            if(cmd.token == TOK_ERROR) {
+                edlin_panic(EDLIN_ERR_ENTRY, p);
+                break;
+            }
             p++;
 
         }

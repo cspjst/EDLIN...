@@ -88,22 +88,16 @@ bool is_tokenize_query(edlin_cmd_t* cmd, char* p, char* start) {
     return false;
 }
 
-bool is_delimiter(char c) {
-    return(
-        c == '\0'
-        || c == '\n'
-        || c == CTRL_C
-        || c == CTRL_Z
-    );
-}
 
-char* tokenize_number(edlin_cmd_t* cmd, char* p) {
+
+char* tokenize_edit(edlin_cmd_t* cmd, char* p) {
     if(!isdigit(*p) && *p != '.') return p;
-    cmd->token = TOK_NUMBER;
+    cmd->token = TOK_EDIT;
     cmd->argc = 1;
     cmd->argv[0] = p;
     while(isdigit(*p)) p++;
-    if(is_delimiter(*p) || *p == ';') *p = '\0';
+    if(*p == ';' || *p == '\n') *p = '\0';
+    else cmd->token = TOK_ERROR;
     return p;
 }
 
@@ -140,5 +134,5 @@ char* edlin_tokenize(edlin_cmd_t* cmd, char* input) {
     // 3. single character commands with no arguments
     //if(is_tokenize_no_args(cmd, p)) return;
     // 4. digits or syntax error
-    return tokenize_number(cmd, p);
+    return tokenize_edit(cmd, p);
 }

@@ -1,6 +1,7 @@
 #ifndef EDLIN_DEBUG_H
 #define EDLIN_DEBUG_H
 
+#include "edlin_errors.h"
 #include "edlin_types.h"
 #include <stdio.h>
 

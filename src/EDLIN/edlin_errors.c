@@ -8,7 +8,9 @@ const char* const EDLIN_ERROR_MESSAGES[] = {
     "Unknown option!",
     "Memory allocation fail!",
     "Text buffer full!",
-    "Stream read/write fail!"
+    "Stream read/write fail!",
+
+    "Entry error"
 };
 
 void* edlin_panic(edlin_err_t e, const char* context) {
