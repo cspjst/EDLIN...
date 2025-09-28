@@ -9,13 +9,7 @@ typedef uint16_t edlin_size_t;
 
 typedef enum {
     TOK_ERROR = 0,  // error
-    TOK_EMPTY,      // user hit return on whitespace line
-    TOK_UNKNOWN,
-    TOK_SYNTAX,     // command ok but args wrong
-    TOK_NUMBER,     //
     TOK_EDIT,       // line# Edit a single line
-    TOK_HASH,       // # Line after the last line
-    TOK_DOT,        // . Current edit line
     TOK_HELP,       // ? Show help
     TOK_END,        // E End (save file)
     TOK_QUIT,       // Q Quit (throw away changes)
@@ -30,6 +24,11 @@ typedef enum {
     TOK_REPLACE,    // [range][?]Rold,new Replace text
     TOK_SEARCH,     // [range][?]S[string] Search for text
     TOK_TRANSFER,   // [toline]Tfilepath Transfer (insert the contents of a new file at the mark)
+
+
+    TOK_EMPTY,      // user hit return on whitespace line
+    TOK_UNKNOWN,
+    TOK_SYNTAX,     // command ok but args wrong
 } enum_token_t;
 
 typedef char edlin_line_t[EDLIN_LINE_SIZE];

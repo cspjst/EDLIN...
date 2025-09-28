@@ -5,16 +5,9 @@
 #include <string.h>
 #include <stdio.h>
 
-#define OFFSET_A 6
-#define OFFSET_RST 14
+#define OFFSET_RST 7
 
 static const edlin_token_t EDLIN_TOKENS[] = {
-    {' ', TOK_EDIT},    // Edit line                  line#
-    {'#', TOK_HASH},     // Line after the last line   #
-    {'.', TOK_DOT},      // Current edit line          .
-    {'?', TOK_HELP},     // Show help                  ?
-    {'E', TOK_END},      // End (save file)            E
-    {'Q', TOK_QUIT},     // Quit (throw away changes)  Q
     {'A', TOK_APPEND},   // Append                     [#lines]A
     {'C', TOK_COPY},     // Copy                       [range][,times]C
     {'D', TOK_DELETE},   // Delete                     [range]D Delete lines
@@ -26,69 +19,52 @@ static const edlin_token_t EDLIN_TOKENS[] = {
     {'R', TOK_REPLACE},  // Replace                    [range][?]R[old],[new]
     {'S', TOK_SEARCH},   // Search                     [range][?]S[text]
     {'T', TOK_TRANSFER}, // Transfer                   [toline]Tfilepath
-    {' ', TOK_ERROR},
-    {' ', TOK_EMPTY},
-    {' ', TOK_UNKNOWN}
 };
 
 static const char EDLIN_QUERY[] = "?";
 
-bool is_tokenize_args(edlin_cmd_t* cmd, char* p, char* start) {
-    cmd->token = TOK_ERROR;
-    for(int i = OFFSET_A; i < OFFSET_RST; ++i) {
+char* tokenize_args(edlin_cmd_t* cmd, char* p) {
+    char* q = p;
+    while(!isalpha(*p) && *p != ';') p++;
+    for(int i = 0; i < OFFSET_RST; ++i) {
         if(toupper(*p) == EDLIN_TOKENS[i].ascii) {
-            if(*(p + 1) != '\0') return true; // trailing arg syntax error
             cmd->token = EDLIN_TOKENS[i].token;
             *p = '\0';  // shorten the string to its args
             int j = 0;
             // tokenize CSV list of args
-            if(*start == ',') { // check for current line syntax
-                cmd->argv[j++] = start;
+            if(*q == ',') { // check for current line syntax
+                cmd->argv[j++] = q;
             }
-            p = strtok(start, ",");
-           while (p != NULL && j < EDLIN_ARGC_MAX - 1) {
-               cmd->argv[j++] = p;  // Store pointer to arg
-               p = strtok(NULL, ",");    // Get next token
-            }
-            cmd->argc = j;
-            return true;
-        }
-    }
-    return false;
-}
-
-bool is_tokenize_query(edlin_cmd_t* cmd, char* p, char* start) {
-    cmd->token = TOK_ERROR;
-    for(int i = OFFSET_RST; i < EDLIN_CMD_COUNT; ++i) {
-        if(toupper(*p) == EDLIN_TOKENS[i].ascii) {
-            cmd->token = EDLIN_TOKENS[i].token;
-            *p = ',';  // replace so CSV
-            char* split = p + 1;
-            // 1. Check for interactive modifier '?' before the command char
-            int j = 0;
-            if(*(p - 1) == '?') {
-                *(p - 1) = ','; // replace so CSV
-                cmd->argv[j++] = EDLIN_QUERY; // interactive
-            } else {
-                cmd->argv[j++] = p; // non-interactive
-            }
-            // 2. tokenize CSV list of args
-            if(*start == ',') { // check for current line syntax
-                cmd->argv[j++] = start;
-            }
-            p = strtok(start, ",");
-            while (p != NULL && j < EDLIN_ARGC_MAX) {
-                cmd->argv[j++] = p;  // Store pointer to arg
-                p = strtok(NULL, ",");    // Get next token
+            char * r = strtok(q, ",");
+            while (r != NULL && j < EDLIN_ARGC_MAX - 1) {
+                cmd->argv[j++] = r;  // Store pointer to arg
+                r = strtok(NULL, ",");    // Get next token
             }
             cmd->argc = j;
-            return true;
+            return p;
         }
     }
-    return false;
+    return q;
 }
 
-
+char* tokenize_no_args(edlin_cmd_t* cmd, char* p) {
+    while(isspace(*p) || *p == ',' || *p == ';') p++;
+    switch(*p) {
+    case'?':
+        cmd->token = TOK_HELP;
+        return p;
+    case'e':
+    case'E':
+        cmd->token = TOK_END;
+        return p;
+    case'q':
+    case'Q':
+        cmd->token = TOK_QUIT;
+        return p;
+    default:
+        return p;
+    }
+}
 
 char* tokenize_edit(edlin_cmd_t* cmd, char* p) {
     if(!isdigit(*p) && *p != '.') return p;
@@ -114,25 +90,44 @@ char* edlin_tokenize(edlin_cmd_t* cmd, char* input) {
     char* p = input;
     memset(cmd, 0, sizeof(edlin_cmd_t));
     p = tokenize_empty(cmd, p);
-
-    // 1. set all pointers to NULL
-
-    // 2. single character commands with arguments
-    /*
-    while(*p != 0) {
-        if(!isalpha(*p)) {
-            p++;
-            continue;
-        }
-        // 2.1 leading args
-        if(is_tokenize_args(cmd, p, cmd->line)) return;
-        // 2.2 leading and trailing args
-        if(is_tokenize_query(cmd, p, cmd->line)) return;
-        p++;
-    }
-    */
-    // 3. single character commands with no arguments
-    //if(is_tokenize_no_args(cmd, p)) return;
-    // 4. digits or syntax error
+    if(cmd->token) return p;
+    p = tokenize_args(cmd, p);
+    if(cmd->token) return p;
+    p = tokenize_no_args(cmd, p);
+    if(cmd->token) return p;
     return tokenize_edit(cmd, p);
 }
+
+// 1. set all pointers to NULL
+
+// 2. single character commands with arguments
+/*
+while(*p != 0) {
+    if(!isalpha(*p)) {
+        p++;
+        continue;
+    }
+    // 2.1 leading args
+    if(is_tokenize_args(cmd, p, cmd->line)) return;
+    // 2.2 leading and trailing args
+    if(is_tokenize_query(cmd, p, cmd->line)) return;
+    p++;
+}
+*/
+// 3. single character commands with no arguments
+//if(is_tokenize_no_args(cmd, p)) return;
+// 4. digits or syntax error
+//
+
+/*
+if(*p == '?')  {
+    cmd->token = TOK_HELP;
+    return p;
+}
+for(int i = 0; i < OFFSET_A; ++i) {
+    if(toupper(*p) == EDLIN_TOKENS[i].ascii) {
+        cmd->token = EDLIN_TOKENS[i].token;
+        return p;
+    }
+}
+ */
