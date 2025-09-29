@@ -24,32 +24,33 @@ static const edlin_token_t EDLIN_TOKENS[] = {
 static const char EDLIN_QUERY[] = "?";
 
 char* tokenize_args(edlin_cmd_t* cmd, char* p) {
-    char* begin = p;
-    while(!isalpha(*p) && *p != ';') p++;
-    for(int i = 0; i < OFFSET_RST; ++i) {
-        if(toupper(*p) == EDLIN_TOKENS[i].ascii) {
-            cmd->token = EDLIN_TOKENS[i].token;
-            *p = '\0';  // shorten the string to its args
-            int j = 0;
+    char* begin = p;                                // copy of start of input
+    while(!isalpha(*p) && *p != ';') p++;           // scan over until candidate char
+    for(int i = 0; i < OFFSET_RST; ++i) {           // search the char table
+        if(toupper(*p) == EDLIN_TOKENS[i].ascii) {  // valid comand char  
+            cmd->token = EDLIN_TOKENS[i].token;     // tokenize
+            *p = '\0';                              // replace with end args
+            int j = 0;                              // j arg counter  
             // tokenize CSV list of args
-            if(*origin == ',') { // check for current line syntax
-                cmd->argv[j++] = begin;
+            if(*origin == ',') {                    // check for current line syntax
+                cmd->argv[j++] = begin;             // store pointer to arg
             }
-            char * parg = strtok(origin, ",");
+            char * parg = strtok(origin, ",");      // tokenize by CSV  
             while (csv != NULL && j < EDLIN_ARGC_MAX - 1) {
-                cmd->argv[j++] = parg;  // Store pointer to arg
-                parg = strtok(NULL, ",");    // Get next token
+                cmd->argv[j++] = parg;              // store pointer to arg
+                parg = strtok(NULL, ",");           // get next token
             }
-            cmd->argc = j;
-            return p;
+            cmd->argc = j;                          // store argc  
+            return p;                               // update input ptr  
         }
     }
-    return begin;
+    return begin;                                   // next filter  
 }
 
 char* tokenize_no_args(edlin_cmd_t* cmd, char* p) {
+    // scan until candidate char
     while(isspace(*p) || *p == ',' || *p == ';') p++;
-    switch(*p) {
+    switch(*p) {                 // handle valid no arg commands
     case'?':
         cmd->token = TOK_HELP;
         return p;
@@ -62,40 +63,40 @@ char* tokenize_no_args(edlin_cmd_t* cmd, char* p) {
         cmd->token = TOK_QUIT;
         return p;
     default:
-        return p;
+        return p;                // no valid chars
     }
 }
 
 char* tokenize_edit(edlin_cmd_t* cmd, char* p) {
-    if(!isdigit(*p) && *p != '.') return p;
-    cmd->token = TOK_EDIT;
-    cmd->argc = 1;
-    cmd->argv[0] = p;
-    while(isdigit(*p)) p++;
-    if(*p == ';' || *p == '\n') *p = '\0';
-    else cmd->token = TOK_ERROR;
-    return p;
+    if(!isdigit(*p) && *p != '.') return p;   // scan over invalid chars
+    cmd->token = TOK_EDIT;                    // found a number    
+    cmd->argc = 1;                            // 1 arg
+    cmd->argv[0] = p;                         // set ptr to arg
+    while(isdigit(*p)) p++;                   // scan until no more digits 
+    if(*p == ';' || *p == '\n') *p = '\0';    // end the arg data
+    else cmd->token = TOK_ERROR;              // syntax error
+    return p;                                 
 }
 
 char* tokenize_empty(edlin_cmd_t* cmd, char* p) {
-    while(isspace(*p)) p++;
-    if(!strlen(p)) {
-        cmd->token = TOK_EMPTY;
+    while(isspace(*p)) p++;                // scan over whitespace
+    if(!strlen(p)) {                       // empty input string
+        cmd->token = TOK_EMPTY;            // tokenize
         return p;
     }
-    return p;
+    return p;                              // next filter
 }
 
 char* edlin_tokenize(edlin_cmd_t* cmd, char* input) {
-    char* p = input;
-    memset(cmd, 0, sizeof(edlin_cmd_t));
-    p = tokenize_empty(cmd, p);
-    if(cmd->token) return p;
-    p = tokenize_args(cmd, p);
-    if(cmd->token) return p;
-    p = tokenize_no_args(cmd, p);
-    if(cmd->token) return p;
-    return tokenize_edit(cmd, p);
+    char* p = input;                        // series of fall through filters
+    memset(cmd, 0, sizeof(edlin_cmd_t));    // zero out the cmd struct
+    p = tokenize_empty(cmd, p);             // empty line?
+    if(cmd->token) return p;                // yes
+    p = tokenize_args(cmd, p);              // A,D,I,L,M,P,W ?
+    if(cmd->token) return p;                // yes
+    p = tokenize_no_args(cmd, p);           // ?,E,Q 
+    if(cmd->token) return p;                // yes
+    return tokenize_edit(cmd, p);           // line edit or error
 }
 
 // 1. set all pointers to NULL
