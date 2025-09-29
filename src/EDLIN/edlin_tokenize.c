@@ -1,4 +1,4 @@
-#include "edlin_tokenize.h"
+is #include "edlin_tokenize.h"
 #include "edlin_constants.h"
 #include "edlin_types.h"
 #include <ctype.h>
@@ -40,7 +40,7 @@ char* tokenize_pre_args(edlin_cmd_t* cmd, char* p) {
                 cmd->argv[j++] = begin;             // store pointer to arg
             }
             char * parg = strtok(origin, ",");      // tokenize by CSV  
-            while (csv != NULL && j < EDLIN_ARGC_MAX - 1) {
+            while (csv != NULL && j < EDLIN_ARGC_MAX) {
                 cmd->argv[j++] = parg;              // store pointer to arg
                 parg = strtok(NULL, ",");           // get next token
             }
@@ -52,7 +52,7 @@ char* tokenize_pre_args(edlin_cmd_t* cmd, char* p) {
 }
 
 char* tokenize_no_args(edlin_cmd_t* cmd, char* p) {
-    // scan until candidate char
+    // scan until candidate char *** combine all these in toknize when known working ***
     while(isspace(*p) || *p == ',' || *p == ';') p++;
     switch(*p) {                                    // handle valid no arg commands
     case'?':
@@ -82,19 +82,11 @@ char* tokenize_edit(edlin_cmd_t* cmd, char* p) {
     return p;                                       // success
 }
 
-char* tokenize_empty(edlin_cmd_t* cmd, char* p) {
-    while(isspace(*p)) p++;                         // scan over whitespace
-    if(!strlen(p)) {                                // empty input string
-        cmd->token = TOK_EMPTY;                     // tokenize
-        return p;
-    }
-    return p;                                       // next filter
-}
-
 char* edlin_tokenize(edlin_cmd_t* cmd, char* input) {
     char* p = input;                                // series of fall through filters
     memset(cmd, 0, sizeof(edlin_cmd_t));            // zero out the cmd struct
-    p = tokenize_empty(cmd, p);                     // empty line?
+    while(isspace(*p)) p++;                         // scan over any whitespace
+    if(!strlen(p)) cmd->token = TOK_EMPTY;          // empty input string ?
     if(cmd->token) return p;                        // yes
     p = tokenize_post_args(cmd, p);                 // ?R,?S,T 
     if(cmd->token) return p;                        // yes
