@@ -24,7 +24,7 @@ static const edlin_token_t EDLIN_TOKENS[] = {
 static const char EDLIN_QUERY[] = "?";
 
 char* tokenize_args(edlin_cmd_t* cmd, char* p) {
-    char* q = p;
+    char* begin = p;
     while(!isalpha(*p) && *p != ';') p++;
     for(int i = 0; i < OFFSET_RST; ++i) {
         if(toupper(*p) == EDLIN_TOKENS[i].ascii) {
@@ -32,19 +32,19 @@ char* tokenize_args(edlin_cmd_t* cmd, char* p) {
             *p = '\0';  // shorten the string to its args
             int j = 0;
             // tokenize CSV list of args
-            if(*q == ',') { // check for current line syntax
-                cmd->argv[j++] = q;
+            if(*origin == ',') { // check for current line syntax
+                cmd->argv[j++] = begin;
             }
-            char * r = strtok(q, ",");
-            while (r != NULL && j < EDLIN_ARGC_MAX - 1) {
-                cmd->argv[j++] = r;  // Store pointer to arg
-                r = strtok(NULL, ",");    // Get next token
+            char * parg = strtok(origin, ",");
+            while (csv != NULL && j < EDLIN_ARGC_MAX - 1) {
+                cmd->argv[j++] = parg;  // Store pointer to arg
+                parg = strtok(NULL, ",");    // Get next token
             }
             cmd->argc = j;
             return p;
         }
     }
-    return q;
+    return begin;
 }
 
 char* tokenize_no_args(edlin_cmd_t* cmd, char* p) {
