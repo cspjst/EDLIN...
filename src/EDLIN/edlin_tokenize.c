@@ -27,7 +27,7 @@ char* tokenize_post_args (edlin_cmd_t* cmd, char* p) {
 
 }
 
-char* tokenize_args(edlin_cmd_t* cmd, char* p) {
+char* tokenize_pre_args(edlin_cmd_t* cmd, char* p) {
     char* begin = p;                                // copy of start of input
     while(!isalpha(*p) && *p != ';') p++;           // scan over until candidate char
     for(int i = 0; i < OFFSET_RST; ++i) {           // search the char table
@@ -96,9 +96,9 @@ char* edlin_tokenize(edlin_cmd_t* cmd, char* input) {
     memset(cmd, 0, sizeof(edlin_cmd_t));            // zero out the cmd struct
     p = tokenize_empty(cmd, p);                     // empty line?
     if(cmd->token) return p;                        // yes
-    p = tokenize_post_args(cmd, p);                 // R,S,T ?
+    p = tokenize_post_args(cmd, p);                 // ?R,?S,T 
     if(cmd->token) return p;                        // yes
-    p = tokenize_pre_args(cmd, p);                  // A,D,I,L,M,P,W ?
+    p = tokenize_pre_args(cmd, p);                  // A,D,I,L,M,P,W 
     if(cmd->token) return p;                        // yes
     p = tokenize_no_args(cmd, p);                   // ?,E,Q 
     if(cmd->token) return p;                        // yes
