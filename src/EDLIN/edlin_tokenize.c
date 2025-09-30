@@ -23,22 +23,25 @@ static const edlin_token_t EDLIN_TOKENS[] = {
 
 static const char EDLIN_QUERY[] = "?";
 
-char* tokenize_post_args (edlin_cmd_t* cmd, char* p0, char* p) {
+char* tokenize_post_args (edlin_cmd_t* cmd, char* p) {
+    char* p0 = p;                                   // copy of start of input
+    while(!isalpha(*p)) p++;                        // scan over until candidate char
     for(int i = OFFSET_RST; i < EDLIN_CMD_COUNT; ++i) {
-        int j = 0;
         if(*p == '?') cmd->argv[j++] = p++;         // interactive
         if(toupper(*p) == EDLIN_TOKENS[i].ascii) {
+            int j = 0;                               // j arg counter
             cmd->token = EDLIN_TOKENS[i].token;
             if(p == p0) p0++;                       // replace with end args
             else *p = ',';                          // replace so CSV pre and post
+            if(*(p - 1) == '?') cmd->argv[j++] = p -1    // interactive query mode 
             // tokenize CSV list of args
             if(*p0 == ',') {                        // check for current line syntax
                 cmd->argv[j++] = p0++;              // store pointer to arg
             }
-            char * arg = strtok(p0, ",");     // tokenize by CSV, CTRL-Z, newline
+            char * arg = strtok(p0, ",\x1A");     // tokenize by CSV, CTRL-Z
             while (arg != NULL && j < EDLIN_ARGC_MAX) {
                 cmd->argv[j++] = arg;               // store pointer to arg
-                arg = strtok(NULL, ",");      // get next token
+                arg = strtok(NULL, ",\x1A");      // get next token
             }
             cmd->argc = j;                          // store argc
             while(*p != '\x1A' && *p != '\n') p++;  // scan to ctrl-z or \n
@@ -48,12 +51,14 @@ char* tokenize_post_args (edlin_cmd_t* cmd, char* p0, char* p) {
     return p0;
 }
 
-char* tokenize_pre_args(edlin_cmd_t* cmd, char* p0, char* p) {
+char* tokenize_pre_args(edlin_cmd_t* cmd, char* p) {
+    char* p0 = p;                                   // copy of start of input
+    while(!isalpha(*p)) p++;                        // scan over until candidate char
     for(int i = 0; i < OFFSET_RST; ++i) {           // search the char table
         if(toupper(*p) == EDLIN_TOKENS[i].ascii) {  // valid comand char
+            int j = 0;                              // j arg counter
             cmd->token = EDLIN_TOKENS[i].token;     // tokenize
             *p = '\0';                              // replace with end args
-            int j = 0;                              // j arg counter
             // tokenize CSV list of args
             if(*p0 == ',') {                        // check for current line syntax
                 cmd->argv[j++] = p0++;              // store pointer to arg
@@ -106,14 +111,10 @@ char* edlin_tokenize(edlin_cmd_t* cmd, char* input) {
     while(isspace(*p)) p++;                         // scan over any whitespace
     if(!strlen(p)) cmd->token = TOK_EMPTY;          // empty input string ?
     if(cmd->token) return p;                        // yes
-    char* p0 = p;                                   // copy of start of input
-    while(!isalpha(*p) && *p != ';' && *p != '?') p++;  // scan over until candidate char
-    p = tokenize_post_args(cmd, p0, p);             // ?R,?S,T
+    p = tokenize_post_args(cmd, p);                 // ?R,?S,T
     if(cmd->token) return p;                        // yes
-    p = tokenize_pre_args(cmd, p0, p);                  // A,D,I,L,M,P,W
+    p = tokenize_pre_args(cmd, p);                  // A,D,I,L,M,P,W
     if(cmd->token) return p;                        // yes
-    //p = tokenize_post_args(cmd, p0, p);
-    //if(cmd->token) return p;
     p = tokenize_no_args(cmd, p);                   // ?,E,Q
     if(cmd->token) return p;                        // yes
     return tokenize_edit(cmd, p);                   // line edit or error
