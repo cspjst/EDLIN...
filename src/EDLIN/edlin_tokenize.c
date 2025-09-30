@@ -32,8 +32,10 @@ char* tokenize_post_args (edlin_cmd_t* cmd, char* p) {
             int j = 0;                               // j arg counter
             cmd->token = EDLIN_TOKENS[i].token;
             if(p == p0) p0++;                       // no pre args
-            else *p = ',';                          // replace so CSV pre and post
-            if(*(p - 1) == '?') cmd->argv[j++] = p -1    // interactive query mode 
+            else {
+                *p = ',';                          // replace so CSV pre and post
+                if(*(p - 1) == '?') cmd->argv[j++] = p -1    // interactive query mode 
+            }
             // tokenize CSV list of args
             if(*p0 == ',') {                        // check for current line syntax
                 cmd->argv[j++] = p0++;              // store pointer to arg
