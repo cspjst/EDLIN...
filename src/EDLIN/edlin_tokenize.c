@@ -26,22 +26,22 @@ static const char EDLIN_QUERY[] = "?";
 char* tokenize_post_args (edlin_cmd_t* cmd, char* p) {
     char* p0 = p;                                   // copy of start of input
     while(!isalpha(*p)) p++;                        // scan over until candidate char
-    for(int i = OFFSET_RST; i < EDLIN_CMD_COUNT; ++i) {
+    for(int i = OFFSET_RST; i < EDLIN_CMD_COUNT; ++i) { // R,S,T search
         if(*p == '?') cmd->argv[j++] = p++;         // interactive
         if(toupper(*p) == EDLIN_TOKENS[i].ascii) {
             int j = 0;                               // j arg counter
             cmd->token = EDLIN_TOKENS[i].token;
-            if(p == p0) p0++;                       // replace with end args
+            if(p == p0) p0++;                       // no pre args
             else *p = ',';                          // replace so CSV pre and post
             if(*(p - 1) == '?') cmd->argv[j++] = p -1    // interactive query mode 
             // tokenize CSV list of args
             if(*p0 == ',') {                        // check for current line syntax
                 cmd->argv[j++] = p0++;              // store pointer to arg
             }
-            char * arg = strtok(p0, ",\x1A");     // tokenize by CSV, CTRL-Z
+            char * arg = strtok(p0, ",\x1A");       // tokenize by CSV, CTRL-Z
             while (arg != NULL && j < EDLIN_ARGC_MAX) {
                 cmd->argv[j++] = arg;               // store pointer to arg
-                arg = strtok(NULL, ",\x1A");      // get next token
+                arg = strtok(NULL, ",\x1A");        // get next token
             }
             cmd->argc = j;                          // store argc
             while(*p != '\x1A' && *p != '\n') p++;  // scan to ctrl-z or \n
@@ -58,6 +58,7 @@ char* tokenize_pre_args(edlin_cmd_t* cmd, char* p) {
         if(toupper(*p) == EDLIN_TOKENS[i].ascii) {  // valid comand char
             int j = 0;                              // j arg counter
             cmd->token = EDLIN_TOKENS[i].token;     // tokenize
+            if(p == p0) return p;                   // no pre args
             *p = '\0';                              // replace with end args
             // tokenize CSV list of args
             if(*p0 == ',') {                        // check for current line syntax
