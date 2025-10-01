@@ -29,10 +29,10 @@ char* edlin_tokenize_SR(edlin_cmd_t* cmd, char* input) {
         switch(toupper(*p)) {
         case'R':
             cmd->token = TOK_QREPLACE;
-            return collect pre post args(input);
+            return edlin_post_args(cmd, edlin_pre_args(cmd, input);
         case'S':
             cmd->token = TOK_QSEARCH;
-             return collect pre post args(input);
+            return edlin_post_args(cmd, edlin_pre_args(cmd, input);
         default:
             cmd->token = TOK_HELP;
             return p;
@@ -41,14 +41,30 @@ char* edlin_tokenize_SR(edlin_cmd_t* cmd, char* input) {
     switch(toupper(*p)) {
     case'R':
         cmd->token = TOK_REPLACE;
-        return collect pre post args(input);
+        return edlin_post_args(cmd, edlin_pre_args(cmd, input);
     case'S':
         cmd->token = TOK_SEARCH;
-         return collect pre post args(input);
+        return edlin_post_args(cmd, edlin_pre_args(cmd, input);
+    case'T':
+        cmd->token = TOK_TRANSFER;
+        return edlin_post_args(cmd, edlin_pre_args(cmd, input);
     default:
         p++;
     }    
     return input;
+}
+
+char* edlin_tokenize_edit((edlin_cmd_t* cmd, char* input) {
+    char* p = input;
+    if(!isdigit(*p) && *p != '.') return p;         // valid chars digit, '.'
+    cmd->token = TOK_EDIT;                          // found a digit
+    cmd->argc = 1;                                  // 1 arg
+    cmd->argv[0] = p;                               // store ptr to arg
+    while(isdigit(*p)) p++;                         // scan until no more digits
+    if(*p == ';') *p = '\0';                        // end the arg data
+    if(*p) return p;
+    cmd->token = TOK_ERROR;                         // otherwise syntax error
+    return input;                                   // success
 }
 
 char* edlin_tokenize(edlin_cmd_t* cmd, char* input) {
@@ -60,8 +76,8 @@ char* edlin_tokenize(edlin_cmd_t* cmd, char* input) {
         return p;    
     }
     p[strcspn(p, "\n")] = '\0';                     // trim \n
-    while(*p) {
-        if(isspace(*p) || *p == ';') {              // skip delimiters (',' has meaning)
+    while(*p && *p != CTRL_Z) {                     // process until null or ctrl-z
+        if(*p == ' ') {                             // skip space delimiter
             p++;
             continue;
         }
