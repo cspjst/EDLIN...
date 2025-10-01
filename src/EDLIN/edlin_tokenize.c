@@ -24,16 +24,16 @@ static const edlin_token_t EDLIN_TOKENS[] = {
 
 char* edlin_tokenize_SR(edlin_cmd_t* cmd, char* input) {
     char* p = input;
-    while(*p  != '\0') {
+    while(*p) {
         if(*p == '?') {
             p++;
             switch(toupper(*p)) {
             case'R':
                 cmd->token = TOK_QREPLACE;
-                return collect pre post args(p);
+                return collect pre post args(input);
             case'S':
                 cmd->token = TOK_QSEARCH;
-                 return collect pre post args(p);
+                 return collect pre post args(input);
             default:
                 cmd->token = TOK_HELP;
                 return p;
@@ -42,14 +42,21 @@ char* edlin_tokenize_SR(edlin_cmd_t* cmd, char* input) {
         switch(toupper(*p)) {
         case'R':
             cmd->token = TOK_REPLACE;
-            return collect pre post args(p);
+            return collect pre post args(input);
         case'S':
             cmd->token = TOK_SEARCH;
-             return collect pre post args(p);
+             return collect pre post args(input);
         default:
-            return p;
+            p++;
         }   
+        for preargs 
+            if 
+                collect pre args
+
+        for noargs
+        
     }
+    return input;
 }
 
 char* edlin_tokenize(edlin_cmd_t* cmd, char* input) {
