@@ -56,16 +56,15 @@ char* edlin_tokenize_SR(edlin_cmd_t* cmd, char* input) {
     */
 }
 
-char* edlin_tokenize_edit(edlin_cmd_t* cmd, char* input) {
-    char* p = input;
+char* edlin_tokenize_edit(edlin_cmd_t* cmd, char* p) {
     if(!isdigit(*p) && *p != '.') return p;         // valid chars digit, '.'
     cmd->token = TOK_EDIT;                          // found a digit or '.'
     cmd->argc = 1;                                  // 1 arg
     cmd->argv[0] = p;                               // store ptr to arg
     while(isdigit(*p)) p++;                         // scan until no more digits
     if(*p == '.') p++;                              // scan past '.'
-    if(*p == ';') *p = '\0';                        // end the arg data
-    if(*p == '\0') return p;                        // succes
+    if(*p == ';') *p = NUL;                         // end the arg data
+    if(*p == NUL) return p;                         // success
     cmd->token = TOK_SYNTAX;                        // otherwise syntax error
     return p;
 }
@@ -74,11 +73,11 @@ char* edlin_tokenize(edlin_cmd_t* cmd, char* input) {
     char* p = input;                                // series of fall through filters
     memset(cmd, 0, sizeof(edlin_cmd_t));            // zero out the cmd struct
     while(isspace(*p)) p++;                         // scan over any whitespace
-    if(*p == '\0') {                                // empty input string ?
+    if(*p == NUL) {                                 // empty input string
         cmd->token = TOK_EMPTY;
         return p;
     }
-    p[strcspn(p, "\n")] = '\0';                     // trim \n
+    p[strcspn(p, "\n")] = NUL;                      // trim \n
     while(*p && *p != CTRL_Z) {                     // process until null or ctrl-z
         if(*p == ' ') {                             // skip space delimiter
             p++;
