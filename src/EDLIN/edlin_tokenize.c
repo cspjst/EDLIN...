@@ -24,38 +24,30 @@ static const edlin_token_t EDLIN_TOKENS[] = {
 
 char* edlin_tokenize_SR(edlin_cmd_t* cmd, char* input) {
     char* p = input;
-    while(*p) {
-        if(*p == '?') {
-            p++;
-            switch(toupper(*p)) {
-            case'R':
-                cmd->token = TOK_QREPLACE;
-                return collect pre post args(input);
-            case'S':
-                cmd->token = TOK_QSEARCH;
-                 return collect pre post args(input);
-            default:
-                cmd->token = TOK_HELP;
-                return p;
-            }
-        }
+    if(*p == '?') {
+        p++;
         switch(toupper(*p)) {
         case'R':
-            cmd->token = TOK_REPLACE;
+            cmd->token = TOK_QREPLACE;
             return collect pre post args(input);
         case'S':
-            cmd->token = TOK_SEARCH;
+            cmd->token = TOK_QSEARCH;
              return collect pre post args(input);
         default:
-            p++;
-        }   
-        for preargs 
-            if 
-                collect pre args
-
-        for noargs
-        
+            cmd->token = TOK_HELP;
+            return p;
+        }
     }
+    switch(toupper(*p)) {
+    case'R':
+        cmd->token = TOK_REPLACE;
+        return collect pre post args(input);
+    case'S':
+        cmd->token = TOK_SEARCH;
+         return collect pre post args(input);
+    default:
+        p++;
+    }    
     return input;
 }
 
@@ -68,9 +60,17 @@ char* edlin_tokenize(edlin_cmd_t* cmd, char* input) {
         return p;    
     }
     p[strcspn(p, "\n")] = '\0';                     // trim \n
-    if(edlin_tokenize_SR(cmd, p)) return p;         // help, search, replace ?
-    
-    return p;
+    while(*p) {
+        if(isspace(*p) || *p == ';') {              // skip delimiters (',' has meaning)
+            p++;
+            continue;
+        }
+        p = edlin_tokenize_SR(cmd, p));             // help, search, replace ?
+        if(cmd->token) return p
+        // tokenize ...
+        // tokenize ...
+    }
+    return edlin_tokenize_edit(cmd, p);             // either a number or error
 }
 
 /*
