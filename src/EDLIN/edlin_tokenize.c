@@ -59,14 +59,15 @@ char* edlin_tokenize_SR(edlin_cmd_t* cmd, char* input) {
 char* edlin_tokenize_edit(edlin_cmd_t* cmd, char* input) {
     char* p = input;
     if(!isdigit(*p) && *p != '.') return p;         // valid chars digit, '.'
-    cmd->token = TOK_EDIT;                          // found a digit
+    cmd->token = TOK_EDIT;                          // found a digit or '.'
     cmd->argc = 1;                                  // 1 arg
     cmd->argv[0] = p;                               // store ptr to arg
     while(isdigit(*p)) p++;                         // scan until no more digits
+    if(*p == '.') p++;                              // scan past '.'
     if(*p == ';') *p = '\0';                        // end the arg data
-    if(*p == '\0') return p;
-    cmd->token = TOK_ERROR;                         // otherwise syntax error
-    return input;                                   // success
+    if(*p == '\0') return p;                        // succes
+    cmd->token = TOK_SYNTAX;                        // otherwise syntax error
+    return p;
 }
 
 char* edlin_tokenize(edlin_cmd_t* cmd, char* input) {
@@ -91,6 +92,7 @@ char* edlin_tokenize(edlin_cmd_t* cmd, char* input) {
         if(cmd->token) return p;
         p++;
     }
+    cmd->token = TOK_SYNTAX;
     return input;
 }
 
