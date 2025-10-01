@@ -28,8 +28,8 @@ typedef enum {
     // pre & post query commnnd arg(s)
     TOK_REPLACE,    // [range]Rold,new Replace text
     TOK_SEARCH,     // [range]S[string] Search for text
-    TOK_QREPLACE,   // [range]?Rold,new Replace text
-    TOK_QSEARCH,    // [range]?S[string] Search for text
+    TOK_QREPLACE,   // [range]?Rold,new Replace text - interactive 
+    TOK_QSEARCH,    // [range]?S[string] Search for text - interactive
     // pre & post commnnd args
     TOK_TRANSFER,   // [toline]Tfilepath Transfer (insert the contents of a new file at the mark)
     // special cases
