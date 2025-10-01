@@ -22,6 +22,70 @@ static const edlin_token_t EDLIN_TOKENS[] = {
     {'T', TOK_TRANSFER} // Transfer    [toline]Tfilepath
 };
 
+
+
+void edlin_inplace_tokenize(char *p) {
+    while(*p) {
+        if(*p == '?') {
+            *p++ = TOK_QUERY;                       // assume interactive
+            switch(toupper(*p)) {
+            case'R':
+                *p = TOK_REPLACE;
+                while(*p && *p != '\x1A') p++;      // skip past replace args
+                continue;
+            case'S':
+                *p = TOK_SEARCH;
+                while(*p && *p != '\x1a') p++;      // skip past search arg
+                if(*p == '\x1a') p++;
+                continue;
+            default:
+                *(p - 1) = TOK_HELP;
+                continue;
+            }
+        }
+        for(int i = 1; i < 13; ++i) {
+
+        }
+        p++;
+    }
+}
+
+char* edlin_tokenize_QSR(edlin_cmd_t* cmd, char* input) {
+    char* p = input;
+    while(*p  != '\0') {
+        if(*p == '?') {
+            p++;
+            switch(toupper(*p)) {
+            case'R':
+                cmd->token = TOK_QREPLACE;
+                return collect pre post args(p);
+            case'S':
+                cmd->token = TOK_QSEARCH;
+                 return collect pre post args(p);
+            default:
+                cmd->token = TOK_HELP;
+                return p;
+            }
+        }
+    }
+}
+
+char* edlin_tokenize(edlin_cmd_t* cmd, char* input) {
+    char* p = input;                                // series of fall through filters
+    memset(cmd, 0, sizeof(edlin_cmd_t));            // zero out the cmd struct
+    while(isspace(*p)) p++;                         // scan over any whitespace
+    if(*p == '\0') {                                // empty input string ?
+        cmd->token = TOK_EMPTY;          
+        return p;    
+    }
+    p[strcspn(p, "\n")] = '\0';                     // trim \n
+    if(edlin_tokenize_QSR(cmd, p)) return p;        // search or replace ?
+    
+    return p;
+}
+
+
+/*
 char* tokenize_post_args (edlin_cmd_t* cmd, char* p) {
     char* p0 = p;                                   // copy of start of input
     while(!isalpha(*p)) p++;           // scan over until candidate char
@@ -112,49 +176,9 @@ char* tokenize_edit(edlin_cmd_t* cmd, char* p) {
     else cmd->token = TOK_ERROR;                    // otherwise syntax error
     return p;                                       // success
 }
-
-void edlin_inplace_tokenize(char *p) {
-    while(*p) {
-        if(*p == '?') {
-            *p++ = TOK_QUERY;                       // assume interactive
-            switch(toupper(*p)) {
-            case'R':
-                *p = TOK_REPLACE;
-                while(*p && *p != '\x1A') p++;      // skip past replace args
-                continue;
-            case'S':
-                *p = TOK_SEARCH;
-                while(*p && *p != '\x1a') p++;      // skip past search arg
-                if(*p == '\x1a') p++;
-                continue;
-            default:
-                *(p - 1) = TOK_HELP;
-                continue;
-            }
-        }
-        for(int i = 1; i < 13; ++i) {
-
-        }
-        p++;
-    }
-}
-
-char* edlin_tokenize(edlin_cmd_t* cmd, char* input) {
-    char* p = input;                                // series of fall through filters
-    memset(cmd, 0, sizeof(edlin_cmd_t));            // zero out the cmd struct
-    while(isspace(*p)) p++;                         // scan over any whitespace
-    if(*p == '\0') cmd->token = TOK_EMPTY;          // empty input string ?
-    if(cmd->token) return p;                        // yes
-    p[strcspn(p, "\n")] = '\0';                     // trim \n
-    edlin_inplace_tokenize(p);
-    printf("%s\n", p);
-    return p;
-}
+*/
 
 /*
-
-
-
     //p = tokenize_post_args(cmd, p);                 // ?R,?S,T
     if(cmd->token) return p;                        // yes
    // p = tokenize_pre_args(cmd, p);                  // A,D,I,L,M,P,W
