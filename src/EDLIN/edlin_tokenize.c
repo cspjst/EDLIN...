@@ -23,6 +23,7 @@ static const edlin_token_t EDLIN_TOKENS[] = {
 };
 
 char* edlin_tokenize_SR(edlin_cmd_t* cmd, char* input) {
+    /*
     char* p = input;
     if(*p == '?') {
         p++;
@@ -50,11 +51,12 @@ char* edlin_tokenize_SR(edlin_cmd_t* cmd, char* input) {
         return edlin_post_args(cmd, edlin_pre_args(cmd, input);
     default:
         p++;
-    }    
+    }
     return input;
+    */
 }
 
-char* edlin_tokenize_edit((edlin_cmd_t* cmd, char* input) {
+char* edlin_tokenize_edit(edlin_cmd_t* cmd, char* input) {
     char* p = input;
     if(!isdigit(*p) && *p != '.') return p;         // valid chars digit, '.'
     cmd->token = TOK_EDIT;                          // found a digit
@@ -62,7 +64,7 @@ char* edlin_tokenize_edit((edlin_cmd_t* cmd, char* input) {
     cmd->argv[0] = p;                               // store ptr to arg
     while(isdigit(*p)) p++;                         // scan until no more digits
     if(*p == ';') *p = '\0';                        // end the arg data
-    if(*p) return p;
+    if(*p == '\0') return p;
     cmd->token = TOK_ERROR;                         // otherwise syntax error
     return input;                                   // success
 }
@@ -72,8 +74,8 @@ char* edlin_tokenize(edlin_cmd_t* cmd, char* input) {
     memset(cmd, 0, sizeof(edlin_cmd_t));            // zero out the cmd struct
     while(isspace(*p)) p++;                         // scan over any whitespace
     if(*p == '\0') {                                // empty input string ?
-        cmd->token = TOK_EMPTY;          
-        return p;    
+        cmd->token = TOK_EMPTY;
+        return p;
     }
     p[strcspn(p, "\n")] = '\0';                     // trim \n
     while(*p && *p != CTRL_Z) {                     // process until null or ctrl-z
@@ -81,12 +83,15 @@ char* edlin_tokenize(edlin_cmd_t* cmd, char* input) {
             p++;
             continue;
         }
-        p = edlin_tokenize_SR(cmd, p));             // help, search, replace ?
-        if(cmd->token) return p
+        //p = edlin_tokenize_SR(cmd, p);             // help, search, replace ?
+        //if(cmd->token) return p;
         // tokenize ...
         // tokenize ...
+        p = edlin_tokenize_edit(cmd, p);
+        if(cmd->token) return p;
+        p++;
     }
-    return edlin_tokenize_edit(cmd, p);             // either a number or error
+    return input;
 }
 
 /*
