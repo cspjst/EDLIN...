@@ -22,18 +22,41 @@ static const edlin_token_t EDLIN_TOKENS[] = {
     {'T', TOK_TRANSFER} // Transfer    [toline]Tfilepath
 };
 
-char* edlin_tokenize_SR(edlin_cmd_t* cmd, char* input) {
-    /*
+char* edlin_pre_args(edlin_cmd_t* cmd, char* p, char* p0) {
+    return p;
+    int j = 0;                              // j arg counter
+    if(p == p0) return p;                   // no pre args
+    *p = NUL;                               // null terminate
+    // tokenize CSV list of args
+    if(*p0 == ',') {                        // check for current line syntax
+        cmd->argv[j++] = p0++;              // store pointer to arg
+    }
+    char * arg = strtok(p0, ",");           // tokenize by CSV
+    while (arg != NULL && j < EDLIN_ARGC_MAX) {
+        cmd->argv[j++] = arg;               // store pointer to arg
+        arg = strtok(NULL, ",");            // get next token
+    }
+    cmd->argc = j;                          // store argc
+    return p++;
+}
+
+char* edlin_post_args(edlin_cmd_t* cmd, char* input) {
+    return input;
+}
+
+char* edlin_tokenize_SRT(edlin_cmd_t* cmd, char* input) {
+    **** have to scan ahead
     char* p = input;
     if(*p == '?') {
+        *p = NUL;
         p++;
         switch(toupper(*p)) {
         case'R':
             cmd->token = TOK_QREPLACE;
-            return edlin_post_args(cmd, edlin_pre_args(cmd, input);
+            return edlin_post_args(cmd, edlin_pre_args(cmd, p, input));
         case'S':
             cmd->token = TOK_QSEARCH;
-            return edlin_post_args(cmd, edlin_pre_args(cmd, input);
+            return edlin_post_args(cmd, edlin_pre_args(cmd, p, input));
         default:
             cmd->token = TOK_HELP;
             return p;
@@ -42,18 +65,17 @@ char* edlin_tokenize_SR(edlin_cmd_t* cmd, char* input) {
     switch(toupper(*p)) {
     case'R':
         cmd->token = TOK_REPLACE;
-        return edlin_post_args(cmd, edlin_pre_args(cmd, input);
+        return edlin_post_args(cmd, edlin_pre_args(cmd, p, input));
     case'S':
         cmd->token = TOK_SEARCH;
-        return edlin_post_args(cmd, edlin_pre_args(cmd, input);
+        return edlin_post_args(cmd, edlin_pre_args(cmd, p, input));
     case'T':
         cmd->token = TOK_TRANSFER;
-        return edlin_post_args(cmd, edlin_pre_args(cmd, input);
+        return edlin_post_args(cmd, edlin_pre_args(cmd, p, input));
     default:
         p++;
     }
     return input;
-    */
 }
 
 char* edlin_tokenize_edit(edlin_cmd_t* cmd, char* p) {
@@ -62,8 +84,8 @@ char* edlin_tokenize_edit(edlin_cmd_t* cmd, char* p) {
     cmd->argc = 1;                                  // 1 arg
     cmd->argv[0] = p;                               // store ptr to arg
     while(isdigit(*p)) p++;                         // scan until no more digits
-    if(*p == '.') p++;                              // scan past '.'
-    if(*p == ';') *p = NUL;                         // end the arg data
+    if(*p == '.' && p == cmd->argv[0]) p++;         // scan past '.'
+    if(*p == ';') *p = NUL;                         // null terminate the arg data
     if(*p == NUL) return p;                         // success
     cmd->token = TOK_SYNTAX;                        // otherwise syntax error
     return p;
@@ -83,10 +105,14 @@ char* edlin_tokenize(edlin_cmd_t* cmd, char* input) {
             p++;
             continue;
         }
-        //p = edlin_tokenize_SR(cmd, p);             // help, search, replace ?
-        //if(cmd->token) return p;
+        p = edlin_tokenize_SRT(cmd, p);             // help, search, replace ?
+        if(cmd->token) return p;
         // tokenize ...
         // tokenize ...
+        if(isalpha(*p)) {
+            cmd->token = TOK_SYNTAX;
+            return p;
+        }
         p = edlin_tokenize_edit(cmd, p);
         if(cmd->token) return p;
         p++;
